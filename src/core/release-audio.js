@@ -9,7 +9,7 @@
   const DEFAULTS = Object.freeze({ enabled: true, music: true, master: .65, sfx: .8, musicVolume: .28 });
   let context = null, master = null, musicGain = null, musicNodes = [], unlocked = false;
   function clamp(value, min, max) { const numeric = Number(value); return Math.min(max, Math.max(min, Number.isFinite(numeric) ? numeric : min)); }
-  function normalize(raw) { return { enabled: raw && raw.enabled !== false, music: raw && raw.music !== false, master: clamp(raw && raw.master == null ? DEFAULTS.master : raw.master, 0, 1), sfx: clamp(raw && raw.sfx == null ? DEFAULTS.sfx : raw.sfx, 0, 1), musicVolume: clamp(raw && raw.musicVolume == null ? DEFAULTS.musicVolume : raw.musicVolume, 0, 1) }; }
+  function normalize(raw) { const source = raw && typeof raw === "object" ? raw : {}; return { enabled: source.enabled !== false, music: source.music !== false, master: clamp(source.master == null ? DEFAULTS.master : source.master, 0, 1), sfx: clamp(source.sfx == null ? DEFAULTS.sfx : source.sfx, 0, 1), musicVolume: clamp(source.musicVolume == null ? DEFAULTS.musicVolume : source.musicVolume, 0, 1) }; }
   function load(storage) { try { const raw = storage && storage.getItem(STORAGE_KEY); return normalize(raw ? JSON.parse(raw) : null); } catch (error) { return normalize(); } }
   function ensure() {
     if (!root || !(root.AudioContext || root.webkitAudioContext)) return null;
