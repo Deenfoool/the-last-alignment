@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111017">
+  <meta name="description" content="Последний расклад — браузерный карточный roguelike.">
+  <title>Последний расклад</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <main class="game-shell" aria-live="polite">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Карточный roguelike</p>
+        <h1>Последний расклад</h1>
+      </div>
+      <div class="run-stats">
+        <div class="stat-chip"><span>Этаж</span><strong id="floorValue">1 / 4</strong></div>
+        <div class="stat-chip"><span>Победы</span><strong id="winsValue">0</strong></div>
+        <button class="ghost-button" id="restartButton" type="button">Новый забег</button>
+      </div>
+    </header>
+
+    <section class="battlefield" id="battlefield">
+      <article class="combatant hero-panel" id="heroPanel">
+        <div class="portrait hero-portrait" aria-hidden="true">♠</div>
+        <div class="combatant-copy">
+          <p class="label">Странник</p>
+          <h2>Последний игрок</h2>
+          <div class="bar" aria-label="Здоровье героя">
+            <div class="bar-fill health-fill" id="heroHealthBar"></div>
+            <span id="heroHealthText">50 / 50</span>
+          </div>
+          <div class="status-row">
+            <span class="status block-status">Броня <strong id="heroBlock">0</strong></span>
+            <span class="status energy-status">Энергия <strong id="energyValue">3 / 3</strong></span>
+          </div>
+        </div>
+      </article>
+
+      <div class="turn-center">
+        <p class="turn-label" id="turnLabel">Ваш ход</p>
+        <div class="intent-card" id="intentCard">
+          <span class="intent-icon" id="intentIcon">⚔</span>
+          <div>
+            <small>Намерение врага</small>
+            <strong id="intentText">Атака: 7</strong>
+          </div>
+        </div>
+        <button class="end-turn-button" id="endTurnButton" type="button">Завершить ход</button>
+      </div>
+
+      <article class="combatant enemy-panel" id="enemyPanel">
+        <div class="portrait enemy-portrait" id="enemyPortrait" aria-hidden="true">☠</div>
+        <div class="combatant-copy">
+          <p class="label" id="enemyRank">Обычный противник</p>
+          <h2 id="enemyName">Костяной скиталец</h2>
+          <div class="bar" aria-label="Здоровье противника">
+            <div class="bar-fill enemy-health-fill" id="enemyHealthBar"></div>
+            <span id="enemyHealthText">30 / 30</span>
+          </div>
+          <div class="status-row">
+            <span class="status block-status">Броня <strong id="enemyBlock">0</strong></span>
+            <span class="status effect-status" id="enemyEffect">Без эффектов</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="message-strip" id="messageStrip">Разыграйте карту или завершите ход.</section>
+
+    <section class="table-area">
+      <aside class="pile-card">
+        <span>Колода</span>
+        <strong id="drawCount">0</strong>
+      </aside>
+
+      <div class="hand" id="hand" aria-label="Карты в руке"></div>
+
+      <aside class="pile-card">
+        <span>Сброс</span>
+        <strong id="discardCount">0</strong>
+      </aside>
+    </section>
+  </main>
+
+  <div class="modal hidden" id="rewardModal" role="dialog" aria-modal="true" aria-labelledby="rewardTitle">
+    <div class="modal-card">
+      <p class="eyebrow">Награда за победу</p>
+      <h2 id="rewardTitle">Выберите одну карту</h2>
+      <p>Она будет добавлена в колоду до конца забега.</p>
+      <div class="reward-grid" id="rewardGrid"></div>
+      <button class="ghost-button skip-button" id="skipRewardButton" type="button">Пропустить награду</button>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="modal-card result-card">
+      <p class="eyebrow" id="resultEyebrow">Забег завершён</p>
+      <h2 id="resultTitle">Вы пали</h2>
+      <p id="resultText">Башня запомнит эту попытку.</p>
+      <div class="result-actions">
+        <button class="end-turn-button" id="resultRestartButton" type="button">Начать заново</button>
+      </div>
+    </div>
+  </div>
+
+  <template id="cardTemplate">
+    <button class="game-card" type="button">
+      <span class="card-cost">1</span>
+      <span class="card-type">Атака</span>
+      <strong class="card-name">Удар</strong>
+      <span class="card-art" aria-hidden="true">⚔</span>
+      <span class="card-description">Наносит 6 урона.</span>
+    </button>
+  </template>
+
+  <script src="game.js"></script>
+</body>
+</html>
