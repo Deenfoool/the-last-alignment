@@ -1,9 +1,12 @@
 "use strict";
 
-const CACHE_NAME = "the-last-alignment-v4-compatibility";
+const CACHE_NAME = "bitaya-mast-v5-stage-one";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
-const THEME_ASSETS = [
+const RUNTIME_ASSETS = [
+  "./brand-runtime.js",
   "./compatibility-runtime.js",
+  "./src/core/battle-engine.js",
+  "./src/core/sample-cards.js",
   "./theme-enhancer.css",
   "./theme-enhancer.js",
   "./assets/theme/deck.svg",
@@ -17,7 +20,7 @@ const THEME_ASSETS = [
   "./assets/theme/node-rest.svg",
   "./assets/theme/node-elite.svg"
 ];
-const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js", ...BUNDLE_PARTS, ...THEME_ASSETS];
+const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js", ...BUNDLE_PARTS, ...RUNTIME_ASSETS];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));

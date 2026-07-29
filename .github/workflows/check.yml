@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/playable-prototype
-      - feature/visual-overhaul-v03
-      - fix/new-run-compatibility
+      - feature/stage-1-battle-core
   pull_request:
 
 permissions:
@@ -33,23 +31,33 @@ jobs:
           node --check /tmp/the-last-alignment-source/game.js
           node --check /tmp/the-last-alignment-source/sw.js
           node --check /tmp/the-last-alignment-source/scripts/validate-data.js
+          node --check brand-runtime.js
           node --check compatibility-runtime.js
           node --check theme-enhancer.js
+          node --check src/core/battle-engine.js
+          node --check src/core/sample-cards.js
+          node --check scripts/test-battle-engine.js
           node --check sw.js
 
-      - name: Validate game data
+      - name: Validate legacy game data
         run: |
           cd /tmp/the-last-alignment-source
           node scripts/validate-data.js
 
-      - name: Check runtime and illustrated theme
+      - name: Test deterministic battle engine
+        run: node scripts/test-battle-engine.js
+
+      - name: Check runtime, branding and assets
         run: |
           test -f index.html
           test -f manifest.webmanifest
           test -f sw.js
+          test -f brand-runtime.js
           test -f compatibility-runtime.js
           test -f theme-enhancer.css
           test -f theme-enhancer.js
+          test -f src/core/battle-engine.js
+          test -f docs/BATTLE_ENGINE.md
           test -f .upgrade/part00.txt
           test -f .upgrade/part06.txt
           for asset in deck hero enemy icon-attack icon-skill icon-power node-battle node-event node-rest node-elite; do
@@ -57,8 +65,9 @@ jobs:
           done
           grep -q 'BUNDLE_HASH' index.html
           grep -q 'DecompressionStream' index.html
-          grep -q 'compatibility-runtime.js?v=4' index.html
-          grep -q 'theme-enhancer.css?v=4' index.html
-          grep -q 'theme-enhancer.js?v=4' index.html
-          grep -q 'the-last-alignment-v4-compatibility' sw.js
+          grep -q 'brand-runtime.js?v=5' index.html
+          grep -q 'src/core/battle-engine.js?v=1' index.html
+          grep -q 'Битая масть' index.html
+          grep -q 'Битая масть' manifest.webmanifest
+          grep -q 'bitaya-mast-v5-stage-one' sw.js
           grep -q 'assets/theme/deck.svg' theme-enhancer.css

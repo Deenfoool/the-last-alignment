@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#100d18">
-  <meta name="description" content="Последний расклад — браузерный карточный roguelike.">
-  <title>Последний расклад — загрузка</title>
+  <meta name="description" content="Битая масть — мрачный карточный roguelike с дуэлями против дилеров.">
+  <meta name="application-name" content="Битая масть">
+  <title>Битая масть — загрузка</title>
   <style>
     :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d0b12; color: #f4ead8; }
     * { box-sizing: border-box; }
@@ -20,12 +21,14 @@
     .error { color: #ef9494; white-space: pre-wrap; }
     @keyframes move { from { transform: translateX(-70%); } to { transform: translateX(210%); } }
   </style>
+  <script src="brand-runtime.js?v=5"></script>
   <script src="compatibility-runtime.js?v=4"></script>
+  <script src="src/core/battle-engine.js?v=1"></script>
 </head>
 <body>
   <main class="loader" id="loader">
     <div class="sigil" aria-hidden="true">♠</div>
-    <h1>Последний расклад</h1>
+    <h1>Битая масть</h1>
     <p id="loaderText">Разворачиваем игровой мир…</p>
     <div class="bar" aria-hidden="true"></div>
   </main>
@@ -124,6 +127,11 @@
       themeRuntime.src = "theme-enhancer.js?v=4";
       themeRuntime.dataset.source = "illustrated-theme-runtime";
       document.body.append(themeRuntime);
+
+      if (window.BitayaMastBrand) {
+        document.title = "Битая масть";
+        document.documentElement.dataset.brand = window.BitayaMastBrand.slug;
+      }
     }
 
     unpackBundle()
