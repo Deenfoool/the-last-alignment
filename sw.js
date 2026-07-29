@@ -1,8 +1,9 @@
 "use strict";
 
-const CACHE_NAME = "the-last-alignment-v3-visuals";
+const CACHE_NAME = "the-last-alignment-v4-compatibility";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
 const THEME_ASSETS = [
+  "./compatibility-runtime.js",
   "./theme-enhancer.css",
   "./theme-enhancer.js",
   "./assets/theme/deck.svg",
@@ -30,8 +31,30 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+function isApplicationShell(request) {
+  if (request.mode === "navigate") return true;
+  const url = new URL(request.url);
+  return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
+
+  if (isApplicationShell(event.request)) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
       if (response.ok) {
