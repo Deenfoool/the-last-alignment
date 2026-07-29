@@ -8,6 +8,8 @@ const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
+  "./assets/pwa/icon.svg",
+  "./assets/pwa/maskable.svg",
   "./styles/stage2.css",
   "./styles/stage3.css",
   "./styles/stage4.css",
@@ -48,6 +50,7 @@ const CORE_ASSETS = [
   "./src/ui/stage6-dealers.js",
   "./src/ui/stage7-act.js",
   "./src/ui/stage8-system.js",
+  "./src/ui/stage8-system-extension.js",
   "./src/ui/stage3-initial-save-guard.js"
 ];
 const OPTIONAL_ASSETS = [
@@ -84,7 +87,7 @@ async function cacheOne(cache, url) {
 async function installAssets() {
   const cache = await caches.open(CACHE_NAME);
   const coreResults = await Promise.all(CORE_ASSETS.map((url) => cacheOne(cache, url)));
-  if (!coreResults[0] || !coreResults[1]) throw new Error("Не удалось закэшировать оболочку приложения.");
+  if (coreResults.some((result) => !result)) throw new Error("Не удалось закэшировать всё игровое ядро.");
   await Promise.allSettled(OPTIONAL_ASSETS.map((url) => cacheOne(cache, url)));
   if (!self.registration.active) await self.skipWaiting();
 }
@@ -92,9 +95,7 @@ async function removeOldCaches() {
   const keys = await caches.keys();
   await Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key)));
 }
-async function cacheMatch(request) {
-  return caches.match(request, { ignoreSearch: true });
-}
+async function cacheMatch(request) { return caches.match(request, { ignoreSearch: true }); }
 async function networkFirst(request, timeoutMs, fallbackUrl) {
   try {
     const response = await fetchWithTimeout(request, timeoutMs);
@@ -122,17 +123,15 @@ async function staleWhileRevalidate(request) {
     }
     return response;
   }).catch(() => null);
-  return cached || update || Response.error();
+  if (cached) { update.catch(() => null); return cached; }
+  return (await update) || Response.error();
 }
 function isNavigation(request) {
   if (request.mode === "navigate") return true;
   const url = new URL(request.url);
   return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html") || url.pathname.endsWith("/legacy.html");
 }
-function isVersionedCode(request) {
-  const path = new URL(request.url).pathname;
-  return /\.(?:js|css|html|webmanifest)$/.test(path);
-}
+function isVersionedCode(request) { return /\.(?:js|css|html|webmanifest)$/.test(new URL(request.url).pathname); }
 
 self.addEventListener("install", (event) => { event.waitUntil(installAssets()); });
 self.addEventListener("activate", (event) => {
@@ -155,16 +154,13 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
   if (isNavigation(request)) {
     event.respondWith((async () => {
-      try {
-        const preload = await event.preloadResponse;
-        if (preload) return preload;
-      } catch (error) { /* continue */ }
+      try { const preload = await event.preloadResponse; if (preload) return preload; } catch (error) { /* continue */ }
       return networkFirst(request, 4500, "./index.html");
     })());
     return;
   }
   if (isVersionedCode(request)) {
-    event.respondWith(networkFirst(request, 3500).catch(() => cacheMatch(request)));
+    event.respondWith(networkFirst(request, 3500).then((response) => response || Response.error()).catch(async () => (await cacheMatch(request)) || Response.error()));
     return;
   }
   event.respondWith(staleWhileRevalidate(request));
