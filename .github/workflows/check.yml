@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/stage-6-dealers-ai
+      - feature/stage-7-first-act
   pull_request:
 
 permissions:
@@ -40,11 +40,15 @@ jobs:
           node --check src/core/stage4-battle-engine.js
           node --check src/core/stage4-runtime.js
           node --check src/core/stage6-battle-runtime.js
+          node --check src/core/stage7-battle-runtime.js
           node --check src/core/dealer-ai.js
           node --check src/core/content-settings.js
           node --check src/core/deck-view-model.js
+          node --check src/core/act-run-engine.js
+          node --check src/core/run-profile.js
           node --check src/data/card-catalog.js
           node --check src/data/dealer-catalog.js
+          node --check src/data/act1-content.js
           node --check src/data/stage2-cards.js
           node --check src/data/stage4-assets.js
           node --check src/data/stage2-assets-scene.js
@@ -56,6 +60,7 @@ jobs:
           node --check src/ui/stage5-deck.js
           node --check src/ui/stage6-app-loader.js
           node --check src/ui/stage6-dealers.js
+          node --check src/ui/stage7-act.js
           node --check src/ui/stage3-initial-save-guard.js
           node --check scripts/test-battle-engine.js
           node --check scripts/test-stage2-battle.js
@@ -65,6 +70,8 @@ jobs:
           node --check scripts/simulate-card-catalog.js
           node --check scripts/test-stage5-deck.js
           node --check scripts/test-stage6-dealers.js
+          node --check scripts/test-stage7-act.js
+          node --check scripts/test-stage7-battle-runtime.js
           node --check sw.js
 
       - name: Validate legacy game data
@@ -81,29 +88,31 @@ jobs:
           node scripts/test-stage4-engine.js
           node scripts/simulate-card-catalog.js
           node scripts/test-stage5-deck.js
+          node scripts/test-stage6-dealers.js
 
-      - name: Test dealer catalog, AI and abilities
-        run: node scripts/test-stage6-dealers.js
+      - name: Test complete first act
+        run: |
+          node scripts/test-stage7-act.js
+          node scripts/test-stage7-battle-runtime.js
 
-      - name: Check stage 6 files and PWA cache
+      - name: Check first-act files and PWA cache
         run: |
           test -s index.html
           test -s legacy.html
-          test -s styles/stage6.css
-          test -s src/data/dealer-catalog.js
-          test -s src/core/dealer-ai.js
-          test -s src/core/stage6-battle-runtime.js
-          test -s src/ui/stage6-app-loader.js
-          test -s src/ui/stage6-dealers.js
-          test -s docs/DEALERS_AND_AI.md
-          test -s scripts/test-stage6-dealers.js
-          grep -q '7 ДИЛЕРОВ' index.html
-          grep -q 'dealer-catalog.js' index.html
-          grep -q 'stage6-battle-runtime.js' index.html
-          grep -q 'dealer-ai.js' index.html
-          grep -q 'stage6-app-loader.js' index.html
-          grep -q 'stage6-dealers.js' index.html
-          grep -q 'bitaya-mast-v10-seven-dealers' sw.js
-          grep -q 'src/data/dealer-catalog.js' sw.js
-          grep -q 'src/core/dealer-ai.js' sw.js
+          test -s styles/stage7.css
+          test -s src/data/act1-content.js
+          test -s src/core/act-run-engine.js
+          test -s src/core/run-profile.js
+          test -s src/core/stage7-battle-runtime.js
+          test -s src/ui/stage7-act.js
+          test -s docs/FIRST_ACT.md
+          test -s scripts/test-stage7-act.js
+          test -s scripts/test-stage7-battle-runtime.js
+          grep -q 'actOverlay' index.html
+          grep -q 'act1-content.js' index.html
+          grep -q 'stage7-battle-runtime.js' index.html
+          grep -q 'stage7-act.js' index.html
+          grep -q 'bitaya-mast-v11-first-act' sw.js
+          grep -q 'src/core/act-run-engine.js' sw.js
+          grep -q 'src/ui/stage7-act.js' sw.js
           grep -q 'BUNDLE_HASH' legacy.html

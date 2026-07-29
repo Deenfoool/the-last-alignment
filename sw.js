@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "bitaya-mast-v10-seven-dealers";
+const CACHE_NAME = "bitaya-mast-v11-first-act";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
 const CURRENT_ASSETS = [
   "./index.html",
@@ -10,17 +10,22 @@ const CURRENT_ASSETS = [
   "./styles/stage4.css",
   "./styles/stage5.css",
   "./styles/stage6.css",
+  "./styles/stage7.css",
   "./src/core/battle-engine.js",
   "./src/core/timed-battle-engine.js",
   "./src/core/timer-settings.js",
   "./src/core/stage4-battle-engine.js",
   "./src/core/stage4-runtime.js",
   "./src/core/stage6-battle-runtime.js",
+  "./src/core/stage7-battle-runtime.js",
   "./src/core/dealer-ai.js",
   "./src/core/content-settings.js",
   "./src/core/deck-view-model.js",
+  "./src/core/act-run-engine.js",
+  "./src/core/run-profile.js",
   "./src/data/card-catalog.js",
   "./src/data/dealer-catalog.js",
+  "./src/data/act1-content.js",
   "./src/data/stage2-cards.js",
   "./src/data/stage4-assets.js",
   "./src/data/stage2-assets-scene.js",
@@ -32,6 +37,7 @@ const CURRENT_ASSETS = [
   "./src/ui/stage5-deck.js",
   "./src/ui/stage6-app-loader.js",
   "./src/ui/stage6-dealers.js",
+  "./src/ui/stage7-act.js",
   "./src/ui/stage3-initial-save-guard.js"
 ];
 const LEGACY_ASSETS = [
