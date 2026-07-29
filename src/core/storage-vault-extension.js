@@ -24,5 +24,14 @@
     bundle.entries.forEach((entry) => Base.setRaw(entry.key, entry.raw, target));
     return { imported: bundle.entries.length, exportedAt: bundle.exportedAt };
   }
-  root.BitayaMastStorageVault = Object.freeze(Object.assign({}, Base, { parseBundle, importBundle }));
+  function restoreSnapshot(storage) {
+    const target = Base.resolveStorage(storage);
+    const raw = target.getItem(Base.SNAPSHOT_KEY);
+    if (!raw) return { restored: 0 };
+    const bundle = parseBundle(JSON.parse(raw));
+    bundle.entries.forEach((entry) => Base.setRaw(entry.key, entry.raw, target));
+    target.removeItem(Base.SNAPSHOT_KEY);
+    return { restored: bundle.entries.length };
+  }
+  root.BitayaMastStorageVault = Object.freeze(Object.assign({}, Base, { parseBundle, importBundle, restoreSnapshot }));
 })(typeof globalThis !== "undefined" ? globalThis : this);
