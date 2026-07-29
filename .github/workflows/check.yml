@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/stage-8-pwa-resilience
+      - feature/stage-9-release-candidate
   pull_request:
 
 permissions:
@@ -50,6 +50,11 @@ jobs:
           node --check src/core/storage-vault-extension.js
           node --check src/core/stage8-compat.js
           node --check src/core/pwa-manager.js
+          node --check src/core/release-card-balance.js
+          node --check src/core/release-dealer-balance.js
+          node --check src/core/release-run-balance.js
+          node --check src/core/release-achievements.js
+          node --check src/core/release-audio.js
           node --check src/data/card-catalog.js
           node --check src/data/dealer-catalog.js
           node --check src/data/act1-content.js
@@ -67,6 +72,7 @@ jobs:
           node --check src/ui/stage7-act.js
           node --check src/ui/stage8-system.js
           node --check src/ui/stage8-system-extension.js
+          node --check src/ui/stage9-release.js
           node --check src/ui/stage3-initial-save-guard.js
           node --check scripts/test-battle-engine.js
           node --check scripts/test-stage2-battle.js
@@ -76,9 +82,13 @@ jobs:
           node --check scripts/simulate-card-catalog.js
           node --check scripts/test-stage5-deck.js
           node --check scripts/test-stage6-dealers.js
+          node --check scripts/test-stage6-loader-scope.js
           node --check scripts/test-stage7-act.js
           node --check scripts/test-stage7-battle-runtime.js
           node --check scripts/test-stage8-resilience.js
+          node --check scripts/test-stage9-release.js
+          node --check scripts/simulate-stage9-balance.js
+          node --check scripts/simulate-stage9-battles.js
           node --check sw.js
 
       - name: Validate legacy game data
@@ -96,33 +106,46 @@ jobs:
           node scripts/simulate-card-catalog.js
           node scripts/test-stage5-deck.js
           node scripts/test-stage6-dealers.js
+          node scripts/test-stage6-loader-scope.js
           node scripts/test-stage7-act.js
           node scripts/test-stage7-battle-runtime.js
 
       - name: Test save recovery and import integrity
         run: node scripts/test-stage8-resilience.js
 
-      - name: Check PWA, diagnostics and mobile files
+      - name: Test release candidate
+        run: |
+          node scripts/test-stage9-release.js
+          node scripts/simulate-stage9-balance.js
+          node scripts/simulate-stage9-battles.js
+
+      - name: Check PWA and release files
         run: |
           test -s index.html
           test -s styles/stage8.css
+          test -s styles/stage9.css
           test -s src/core/storage-vault.js
           test -s src/core/storage-vault-extension.js
           test -s src/core/stage8-compat.js
           test -s src/core/pwa-manager.js
+          test -s src/core/release-card-balance.js
+          test -s src/core/release-dealer-balance.js
+          test -s src/core/release-run-balance.js
+          test -s src/core/release-achievements.js
+          test -s src/core/release-audio.js
           test -s src/ui/stage8-system.js
           test -s src/ui/stage8-system-extension.js
+          test -s src/ui/stage9-release.js
           test -s docs/PWA_AND_RECOVERY.md
+          test -s docs/RELEASE_CANDIDATE.md
           test -s assets/pwa/icon.svg
           test -s assets/pwa/maskable.svg
           grep -q 'systemOverlay' index.html
-          grep -q 'storage-vault.js' index.html
-          grep -q 'storage-vault-extension.js' index.html
-          grep -q 'stage8-compat.js' index.html
-          grep -q 'pwa-manager.js' index.html
-          grep -q 'stage8-system.js' index.html
-          grep -q 'stage8-system-extension.js' sw.js
-          grep -q 'bitaya-mast-v12-resilient-pwa' sw.js
+          grep -q 'release-card-balance.js' src/core/stage4-runtime.js
+          grep -q 'stage9-release.js' src/core/stage4-runtime.js
+          grep -q 'bitaya-mast-v13-release-candidate' sw.js
+          grep -q 'release-card-balance.js' sw.js
+          grep -q 'stage9-release.js' sw.js
           grep -q 'SKIP_WAITING' sw.js
           grep -q 'GET_VERSION' sw.js
           grep -q 'assets/pwa/icon.svg' manifest.webmanifest
