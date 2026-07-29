@@ -12,11 +12,14 @@
     throw new Error(`Не удалось загрузить интерфейс боя: ${request.status}.`);
   }
 
-  let source = loadSource("src/ui/stage3-app.js?v=10");
+  let source = loadSource("src/ui/stage3-app.js?v=13");
   const choicePattern = /  function dealerChoice\(assumeNextTurn\) \{[\s\S]*?\n  function renderIntent\(\) \{/;
   if (!choicePattern.test(source)) throw new Error("Не удалось подключить новый ИИ: блок dealerChoice не найден.");
   source = source.replace(choicePattern, `  function activeDealerProfile() {
-    return Dealers.getDealer(Engine.currentDealerId ? Engine.currentDealerId(state) : (state && state.dealerId));
+    const dealerCatalog = window.BitayaMastDealerCatalog;
+    if (!dealerCatalog) throw new Error("Каталог дилеров недоступен в боевой сцене.");
+    const dealerId = Engine.currentDealerId ? Engine.currentDealerId(state) : (state && state.dealerId);
+    return dealerCatalog.getDealer(dealerId);
   }
 
   function safeDealerText() {
@@ -26,21 +29,25 @@
   }
 
   function dealerChoice(assumeNextTurn) {
-    return AI.chooseCard(state, activeDealerProfile(), { assumeNextTurn: Boolean(assumeNextTurn), engine: Engine });
+    const dealerAI = window.BitayaMastDealerAI;
+    if (!dealerAI) throw new Error("Модуль ИИ дилера недоступен в боевой сцене.");
+    return dealerAI.chooseCard(state, activeDealerProfile(), { assumeNextTurn: Boolean(assumeNextTurn), engine: Engine });
   }
 
   function renderIntent() {`);
 
   const intentBodyPattern = /    const choice = dealerChoice\(state\.phase !== Engine\.PHASES\.DEALER\);[\s\S]*?    dom\.intentText\.textContent = steal \? "Попробует забрать карту из твоей руки\." : damage \? `Возможный урон: \$\{damage\.amount\}\.` : shield \? `Получит до \$\{shield\.amount\} щита\.` : meta\.short;/;
   if (!intentBodyPattern.test(source)) throw new Error("Не удалось подключить намерение нового ИИ.");
-  source = source.replace(intentBodyPattern, `    const intent = AI.intentFor(state, activeDealerProfile(), { engine: Engine });
+  source = source.replace(intentBodyPattern, `    const dealerAI = window.BitayaMastDealerAI;
+    if (!dealerAI) throw new Error("Модуль ИИ дилера недоступен при расчёте намерения.");
+    const intent = dealerAI.intentFor(state, activeDealerProfile(), { engine: Engine });
     dom.intentTitle.textContent = intent.title;
     dom.intentText.textContent = intent.text;`);
 
   const quotePattern = /    dom\.dealerQuote\.textContent = dealer\.hp \/ dealer\.maxHp <= \.35 \? "«Рано радуешься\. Долг ещё не закрыт»" : "«В каждой игре я знаю, где у тебя слабое место»";/;
   if (!quotePattern.test(source)) throw new Error("Не удалось подключить реплики дилеров.");
   source = source.replace(quotePattern, `    const dealerProfile = activeDealerProfile();
-    dom.dealerQuote.textContent = Dealers.quoteFor(dealerProfile, dealer.hp / dealer.maxHp <= .35 ? "low" : "intro", safeDealerText());`);
+    dom.dealerQuote.textContent = window.BitayaMastDealerCatalog.quoteFor(dealerProfile, dealer.hp / dealer.maxHp <= .35 ? "low" : "intro", safeDealerText());`);
 
   source = source.replace("? `Шулер проиграл. Осталось здоровья: ${state.actors.player.hp}. Режим: ${TimerSettings.describe(settings)}.`", "? `${activeDealerProfile().name} проиграл. Осталось здоровья: ${state.actors.player.hp}. Режим: ${TimerSettings.describe(settings)}.`");
   source += "\n//# sourceURL=stage6-patched-duel-app.js";
