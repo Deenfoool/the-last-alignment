@@ -2,11 +2,13 @@
   "id": "bitaya-mast",
   "name": "Битая масть",
   "short_name": "Масть",
-  "description": "Мрачный карточный roguelike с дуэлями против дилеров.",
+  "description": "Мрачный карточный roguelike с полным первым актом, маршрутами, событиями и семью дилерами.",
   "lang": "ru",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0b0910",
-  "theme_color": "#0d0b12",
+  "orientation": "any",
+  "background_color": "#080606",
+  "theme_color": "#0b0808",
   "icons": []
 }
