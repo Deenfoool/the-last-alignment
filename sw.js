@@ -1,12 +1,21 @@
 "use strict";
 
-const CACHE_NAME = "bitaya-mast-v5-stage-one";
+const CACHE_NAME = "bitaya-mast-v6-vertical-slice";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
-const RUNTIME_ASSETS = [
+const STAGE_TWO_ASSETS = [
+  "./index.html",
+  "./legacy.html",
+  "./styles/stage2.css",
+  "./src/core/battle-engine.js",
+  "./src/data/stage2-cards.js",
+  "./src/data/stage2-assets-scene.js",
+  "./src/data/stage2-assets-a.js",
+  "./src/data/stage2-assets-b.js",
+  "./src/ui/stage2-app.js"
+];
+const LEGACY_ASSETS = [
   "./brand-runtime.js",
   "./compatibility-runtime.js",
-  "./src/core/battle-engine.js",
-  "./src/core/sample-cards.js",
   "./theme-enhancer.css",
   "./theme-enhancer.js",
   "./assets/theme/deck.svg",
@@ -18,9 +27,10 @@ const RUNTIME_ASSETS = [
   "./assets/theme/node-battle.svg",
   "./assets/theme/node-event.svg",
   "./assets/theme/node-rest.svg",
-  "./assets/theme/node-elite.svg"
+  "./assets/theme/node-elite.svg",
+  ...BUNDLE_PARTS
 ];
-const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js", ...BUNDLE_PARTS, ...RUNTIME_ASSETS];
+const ASSETS = ["./", "./manifest.webmanifest", "./sw.js", ...STAGE_TWO_ASSETS, ...LEGACY_ASSETS];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -37,33 +47,25 @@ self.addEventListener("activate", (event) => {
 function isApplicationShell(request) {
   if (request.mode === "navigate") return true;
   const url = new URL(request.url);
-  return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+  return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html") || url.pathname.endsWith("/legacy.html");
 }
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
-
   if (isApplicationShell(event.request)) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          }
+          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
           return response;
         })
         .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
     );
     return;
   }
-
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
-      if (response.ok) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-      }
+      if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
       return response;
     }))
   );
