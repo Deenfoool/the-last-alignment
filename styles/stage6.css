@@ -1,0 +1,137 @@
+@import url("./stage5.css?v=9");
+
+:root {
+  --dealer-primary: #21110d;
+  --dealer-accent: #9e3d2e;
+  --dealer-detail: #c6a46a;
+}
+
+.scene {
+  background-size: 122% auto;
+  background-position: center 5%;
+}
+
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--dealer-accent) 13%, transparent), transparent 30%),
+    linear-gradient(90deg, rgba(0,0,0,.58), transparent 22% 78%, rgba(0,0,0,.64));
+  mix-blend-mode: screen;
+}
+
+.dealer-portrait {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 4.5%;
+  width: min(34vw, 430px);
+  height: min(58vh, 570px);
+  transform: translateX(-50%);
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+  opacity: .88;
+  filter: drop-shadow(0 30px 28px #000) saturate(.82) contrast(1.08);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.dealer-nameplate { z-index: 8; top: 68px; }
+.dealer-nameplate strong { color: var(--dealer-accent); text-shadow: 2px 2px #000, 0 0 18px color-mix(in srgb, var(--dealer-accent) 65%, transparent); }
+.dealer-hand { z-index: 9; top: 45%; }
+.table-zones { z-index: 10; }
+
+.dealer-ability-plate {
+  position: absolute;
+  z-index: 11;
+  left: 50%;
+  bottom: 162px;
+  width: min(420px, 62%);
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  text-align: center;
+  border: 2px solid color-mix(in srgb, var(--dealer-accent) 58%, #3b2e22);
+  background: rgba(7, 6, 5, .88);
+  box-shadow: inset 0 0 0 1px #160f0c, 0 13px 28px #000b;
+}
+.dealer-ability-plate > span { display: block; color: #75695b; font-size: 8px; letter-spacing: .1em; }
+.dealer-ability-plate strong { display: block; margin: 2px 0; color: var(--dealer-detail); font-size: 12px; text-transform: uppercase; }
+.dealer-ability-plate p { margin: 0; color: #9d8f7b; font-size: 8px; line-height: 1.35; }
+.dealer-ability-plate[data-tier="elite"] { border-style: double; border-width: 4px; }
+.dealer-ability-plate[data-tier="boss"] { animation: boss-plate 1.8s steps(2,end) infinite; }
+.dealer-ability-plate.triggered { animation: ability-trigger .65s steps(3,end); }
+
+.dealer-fieldset { border-color: #5e4935; }
+.dealer-tier-legend { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 9px; color: #7f705f; font-size: 8px; text-transform: uppercase; }
+.dealer-tier-legend span { padding: 3px 6px; border: 1px solid #413225; background: #0d0a08; }
+.dealer-select-grid { display: grid; grid-template-columns: repeat(4, minmax(138px, 1fr)); gap: 8px; }
+.dealer-option { display: block; min-width: 0; cursor: pointer; }
+.dealer-option input { position: absolute; opacity: 0; pointer-events: none; }
+.dealer-option-face {
+  min-height: 130px;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 8px;
+  padding: 8px;
+  border: 2px solid #3e3024;
+  background: linear-gradient(145deg, #15110e, #090706);
+  box-shadow: inset 0 0 0 1px #070504;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.dealer-option:hover .dealer-option-face { transform: translateY(-2px); border-color: var(--dealer-accent); }
+.dealer-option input:checked + .dealer-option-face { border-color: var(--dealer-accent); box-shadow: inset 0 0 0 2px #070504, 0 0 20px color-mix(in srgb, var(--dealer-accent) 34%, transparent); }
+.dealer-option[data-tier="elite"] .dealer-option-face { border-style: double; border-width: 4px; }
+.dealer-option[data-tier="boss"] { grid-column: span 2; }
+.dealer-option[data-tier="boss"] .dealer-option-face { background: linear-gradient(145deg, #1b0b08, #070504); }
+.dealer-option-portrait { display: block; width: 58px; height: 88px; align-self: center; background: #060505 center top / cover no-repeat; image-rendering: pixelated; filter: drop-shadow(0 8px 8px #000); }
+.dealer-option-copy { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.dealer-option-copy small { color: #736657; font-size: 7px; }
+.dealer-option-copy strong { margin: 3px 0; color: var(--dealer-accent); font-size: 13px; text-transform: uppercase; }
+.dealer-option-copy b { color: var(--dealer-detail); font-size: 9px; }
+.dealer-option-copy em { margin-top: 5px; color: #978874; font-size: 7px; font-style: normal; line-height: 1.3; }
+.dealer-setup-preview { margin: 9px 0 0; padding: 8px 10px; border-left: 3px solid var(--dealer-accent); background: #0b0907; color: #93836f; font-size: 9px; line-height: 1.5; }
+.dealer-setup-preview b { color: var(--dealer-detail); }
+
+html[data-dealer-tier="boss"] .scene-vignette { box-shadow: inset 0 0 190px 50px #000, inset 0 0 70px color-mix(in srgb, var(--dealer-accent) 20%, transparent); }
+html[data-dealer="sysadmin"] .scene { filter: hue-rotate(65deg) saturate(.72); }
+html[data-dealer="projectionist"] .scene { filter: hue-rotate(295deg) saturate(.72); }
+html[data-dealer="archivist"] .scene { filter: sepia(.24) saturate(.7); }
+html[data-dealer="mascot"] .scene { filter: hue-rotate(320deg) saturate(1.12) contrast(1.06); }
+html[data-dealer="house_master"] .scene { filter: contrast(1.15) saturate(.9) brightness(.82); }
+
+.dealer-arrival .dealer-portrait { animation: dealer-arrival .7s steps(6,end); }
+
+@keyframes dealer-arrival {
+  0% { opacity: 0; transform: translateX(-50%) scale(.88); filter: blur(8px) brightness(2); }
+  100% { opacity: .88; transform: translateX(-50%) scale(1); }
+}
+@keyframes ability-trigger {
+  35% { transform: translateX(-50%) scale(1.06); border-color: var(--dealer-detail); box-shadow: 0 0 34px var(--dealer-accent); }
+}
+@keyframes boss-plate {
+  50% { box-shadow: inset 0 0 0 1px #160f0c, 0 0 26px color-mix(in srgb, var(--dealer-accent) 38%, transparent); }
+}
+
+@media (max-width: 1100px) {
+  .dealer-select-grid { grid-template-columns: repeat(3, minmax(132px, 1fr)); }
+  .dealer-option[data-tier="boss"] { grid-column: span 1; }
+  .dealer-portrait { width: min(42vw, 390px); }
+}
+
+@media (max-width: 760px) {
+  .scene { background-size: auto 78vh; }
+  .dealer-portrait { top: 21%; width: 240px; height: 310px; opacity: .76; }
+  .dealer-nameplate { top: 180px; }
+  .dealer-ability-plate { bottom: 270px; width: min(300px, 76%); padding: 5px 7px; }
+  .dealer-ability-plate p { display: none; }
+  .dealer-select-grid { grid-template-columns: 1fr; max-height: 36vh; overflow-y: auto; padding-right: 3px; }
+  .dealer-option[data-tier="boss"] { grid-column: auto; }
+  .dealer-option-face { min-height: 92px; grid-template-columns: 48px 1fr; }
+  .dealer-option-portrait { width: 48px; height: 70px; }
+  .dealer-option-copy em { font-size: 6px; }
+}
