@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/stage-2-vertical-slice
+      - feature/stage-3-timer-settings
   pull_request:
 
 permissions:
@@ -35,14 +35,19 @@ jobs:
           node --check compatibility-runtime.js
           node --check theme-enhancer.js
           node --check src/core/battle-engine.js
+          node --check src/core/timed-battle-engine.js
+          node --check src/core/timer-settings.js
           node --check src/core/sample-cards.js
           node --check src/data/stage2-cards.js
           node --check src/data/stage2-assets-scene.js
           node --check src/data/stage2-assets-a.js
           node --check src/data/stage2-assets-b.js
           node --check src/ui/stage2-app.js
+          node --check src/ui/stage3-app.js
+          node --check src/ui/stage3-initial-save-guard.js
           node --check scripts/test-battle-engine.js
           node --check scripts/test-stage2-battle.js
+          node --check scripts/test-timer-settings.js
           node --check sw.js
 
       - name: Validate legacy game data
@@ -56,23 +61,29 @@ jobs:
       - name: Smoke-test vertical slice
         run: node scripts/test-stage2-battle.js
 
-      - name: Check vertical-slice files and assets
+      - name: Test timer presets and timeout commands
+        run: node scripts/test-timer-settings.js
+
+      - name: Check stage 3 files and PWA cache
         run: |
           test -s index.html
           test -s legacy.html
           test -s styles/stage2.css
-          test -s src/data/stage2-cards.js
-          test -s src/data/stage2-assets-scene.js
-          test -s src/data/stage2-assets-a.js
-          test -s src/data/stage2-assets-b.js
-          test -s src/ui/stage2-app.js
-          test -s docs/VISUAL_GUIDE.md
-          grep -q -- '--dealer-scene' styles/stage2.css
+          test -s styles/stage3.css
+          test -s src/core/timed-battle-engine.js
+          test -s src/core/timer-settings.js
+          test -s src/ui/stage3-app.js
+          test -s src/ui/stage3-initial-save-guard.js
+          test -s scripts/test-timer-settings.js
+          grep -q 'ПРАВИЛА СДАЧИ' index.html
+          grep -q 'timerMode' index.html
+          grep -q 'timerPenalty' index.html
+          grep -q 'timed-battle-engine.js' index.html
+          grep -q 'timer-settings.js' index.html
+          grep -q 'stage3-app.js' index.html
+          grep -q 'stage3-initial-save-guard.js' index.html
+          grep -q 'bitaya-mast-v7-timer-modes' sw.js
+          grep -q 'src/core/timed-battle-engine.js' sw.js
+          grep -q 'src/ui/stage3-app.js' sw.js
           grep -q 'data:image/webp;base64' src/data/stage2-assets-scene.js
-          grep -q 'data:image/webp;base64' src/data/stage2-assets-a.js
-          grep -q 'data:image/webp;base64' src/data/stage2-assets-b.js
-          grep -q 'БИТАЯ МАСТЬ' index.html
-          grep -q 'bitaya-mast-v6-vertical-slice' sw.js
-          grep -q 'legacy.html' sw.js
-          grep -q 'src/ui/stage2-app.js' index.html
           grep -q 'BUNDLE_HASH' legacy.html

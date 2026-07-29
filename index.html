@@ -7,33 +7,90 @@
   <meta name="description" content="Битая масть — мрачная карточная дуэль с мемными картами.">
   <title>Битая масть — дуэль</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles/stage2.css?v=6">
+  <link rel="stylesheet" href="styles/stage3.css?v=7">
 </head>
 <body>
   <div id="app" class="game-shell" aria-live="polite">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Битая масть"><span class="brand-mark">☠</span><span>БИТАЯ МАСТЬ</span><small>вертикальный срез</small></a>
-      <nav class="top-actions" aria-label="Меню"><button id="helpButton" class="icon-button" type="button" title="Правила">?</button><a class="icon-button" href="legacy.html" title="Старый прототип">↩</a><button id="restartButton" class="icon-button" type="button" title="Новый бой">⟳</button></nav>
+      <a class="brand" href="./" aria-label="Битая масть"><span class="brand-mark">☠</span><span>БИТАЯ МАСТЬ</span><small>режим дуэли</small></a>
+      <nav class="top-actions" aria-label="Меню">
+        <button id="helpButton" class="icon-button" type="button" title="Правила">?</button>
+        <button id="settingsButton" class="icon-button" type="button" title="Режим времени">⚙</button>
+        <a class="icon-button" href="legacy.html" title="Старый прототип">↩</a>
+        <button id="restartButton" class="icon-button" type="button" title="Новая сдача">⟳</button>
+      </nav>
     </header>
+
     <main class="battle-layout">
       <aside class="hud-panel" aria-label="Показатели боя">
         <section class="hud-actor player-hud" id="playerHud"><h2>ИГРОК</h2><div class="stat-row health"><span class="stat-icon">♥</span><div><b>ЗДОРОВЬЕ</b><strong id="playerHp">0 / 0</strong></div><div class="segments" id="playerHpBar"></div></div><div class="stat-row shield"><span class="stat-icon">⬟</span><div><b>ЩИТ</b><strong id="playerShield">0</strong></div><div class="segments" id="playerShieldBar"></div></div><div class="stat-row energy"><span class="stat-icon">ϟ</span><div><b>ЭНЕРГИЯ</b><strong id="playerEnergy">0 / 0</strong></div><div class="energy-pips" id="playerEnergyPips"></div></div><div class="status-list" id="playerStatuses"></div></section>
         <section class="hud-actor dealer-hud" id="dealerHud"><h2>ДИЛЕР</h2><div class="stat-row health"><span class="stat-icon">♥</span><div><b>ЗДОРОВЬЕ</b><strong id="dealerHp">0 / 0</strong></div><div class="segments" id="dealerHpBar"></div></div><div class="stat-row shield"><span class="stat-icon">⬟</span><div><b>ЩИТ</b><strong id="dealerShield">0</strong></div><div class="segments" id="dealerShieldBar"></div></div><div class="stat-row energy"><span class="stat-icon">ϟ</span><div><b>ЭНЕРГИЯ</b><strong id="dealerEnergy">0 / 0</strong></div><div class="energy-pips" id="dealerEnergyPips"></div></div><div class="status-list" id="dealerStatuses"></div></section>
         <section class="round-panel"><div><span>РАУНД</span><strong id="roundValue">1</strong></div><div><span>ХОД</span><strong id="turnValue">ИГРОКА</strong></div></section>
       </aside>
-      <section class="scene" id="scene" aria-label="Игровой стол"><div class="scene-vignette"></div><div class="dealer-nameplate"><strong>ШУЛЕР</strong><span id="dealerQuote">«В каждой игре я знаю, где у тебя слабое место»</span></div><div class="dealer-hand" id="dealerHand" aria-label="Карты дилера"></div><div class="impact-layer" id="impactLayer" aria-hidden="true"></div><div class="floating-message" id="floatingMessage" role="status"></div><div class="table-zones"><button class="pile draw-pile" id="drawPile" type="button" aria-label="Колода игрока"><span class="pile-stack"></span><b>КОЛОДА</b><strong id="drawCount">0</strong></button><div class="table-sigil">☠</div><button class="pile discard-pile" id="discardPile" type="button" aria-label="Сброс игрока"><span class="pile-stack"></span><b>СБРОС</b><strong id="discardCount">0</strong></button></div></section>
-      <aside class="action-panel"><section class="intent-card" id="intentCard"><span>НАМЕРЕНИЕ ДИЛЕРА</span><strong id="intentTitle">ПРИСМАТРИВАЕТСЯ</strong><p id="intentText">Дилер выбирает карту.</p></section><section class="timer-box" id="timerBox"><span>ТАЙМЕР ХОДА</span><strong id="timerValue">00:45</strong><div class="timer-track"><i id="timerProgress"></i></div></section><button id="endTurnButton" class="end-turn" type="button"><span>ЗАВЕРШИТЬ ХОД</span><small>ПРОБЕЛ</small></button><section class="battle-log" id="battleLog" aria-label="Последние события"></section></aside>
+
+      <section class="scene" id="scene" aria-label="Игровой стол">
+        <div class="scene-vignette"></div>
+        <div class="dealer-nameplate"><strong>ШУЛЕР</strong><span id="dealerQuote">«В каждой игре я знаю, где у тебя слабое место»</span></div>
+        <div class="dealer-hand" id="dealerHand" aria-label="Карты дилера"></div>
+        <div class="impact-layer" id="impactLayer" aria-hidden="true"></div>
+        <div class="floating-message" id="floatingMessage" role="status"></div>
+        <div class="table-zones"><button class="pile draw-pile" id="drawPile" type="button" aria-label="Колода игрока"><span class="pile-stack"></span><b>КОЛОДА</b><strong id="drawCount">0</strong></button><div class="table-sigil">☠</div><button class="pile discard-pile" id="discardPile" type="button" aria-label="Сброс игрока"><span class="pile-stack"></span><b>СБРОС</b><strong id="discardCount">0</strong></button></div>
+      </section>
+
+      <aside class="action-panel">
+        <section class="intent-card" id="intentCard"><span>НАМЕРЕНИЕ ДИЛЕРА</span><strong id="intentTitle">ПРИСМАТРИВАЕТСЯ</strong><p id="intentText">Дилер выбирает карту.</p></section>
+        <section class="timer-box" id="timerBox"><span>ТАЙМЕР ХОДА</span><strong id="timerValue">∞</strong><div class="timer-track"><i id="timerProgress"></i></div><b class="timer-mode" id="timerMode">КЛАССИКА</b><small class="timer-penalty" id="timerPenalty">Время не ограничено</small></section>
+        <button id="endTurnButton" class="end-turn" type="button"><span>ЗАВЕРШИТЬ ХОД</span><small>ПРОБЕЛ</small></button>
+        <section class="battle-log" id="battleLog" aria-label="Последние события"></section>
+      </aside>
     </main>
+
     <section class="hand-dock" aria-label="Рука игрока"><div class="hand" id="hand"></div><p class="hand-hint">Наведи курсор для подробностей · на телефоне нажми на карту</p></section>
   </div>
-  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Разыгрывай карты, пока хватает энергии. Атаки бьют дилера, защитные карты дают щит, а приёмы меняют правила боя.</p><p><b>Щит</b> принимает урон первым и исчезает в начале твоего следующего хода. Когда закончишь, нажми «Завершить ход».</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
-  <div class="result-overlay" id="resultOverlay" hidden><div class="result-card"><span id="resultEyebrow">БОЙ ОКОНЧЕН</span><h2 id="resultTitle">ПОБЕДА</h2><p id="resultText"></p><button id="resultRestart" type="button">СДАТЬ ЗАНОВО</button><a href="legacy.html">Вернуться в старый забег</a></div></div>
+
+  <div id="setupOverlay" class="setup-overlay" hidden>
+    <section id="setupPanel" class="setup-panel" tabindex="-1" aria-labelledby="setupTitle">
+      <header class="setup-heading"><span class="skull">☠</span><div><h1 id="setupTitle">ПРАВИЛА СДАЧИ</h1><p>Выбери, сколько времени тебе даст Шулер и чем заплатишь за промедление.</p></div></header>
+
+      <fieldset class="setup-fieldset">
+        <legend>РЕЖИМ ВРЕМЕНИ</legend>
+        <div class="preset-grid">
+          <label class="option-card"><input type="radio" name="timerMode" value="classic"><span class="option-face"><strong>КЛАССИКА</strong><small>Без таймера. Можно думать сколько угодно.</small></span></label>
+          <label class="option-card"><input type="radio" name="timerMode" value="relaxed"><span class="option-face"><strong>БЫСТРЫЙ</strong><small>60 секунд на каждый ход игрока.</small></span></label>
+          <label class="option-card"><input type="radio" name="timerMode" value="hardcore"><span class="option-face"><strong>ХАРДКОР</strong><small>30 секунд. Ошибка дорого обходится.</small></span></label>
+          <label class="option-card"><input type="radio" name="timerMode" value="custom"><span class="option-face"><strong>СВОЙ РЕЖИМ</strong><small>Установи от 10 до 180 секунд.</small></span></label>
+        </div>
+        <div id="customTimerRow" class="custom-timer-row" hidden><input id="customSeconds" type="range" min="10" max="180" step="5" value="45" aria-label="Секунд на ход"><input id="customSecondsNumber" type="number" min="10" max="180" step="5" value="45" aria-label="Секунд на ход числом"></div>
+      </fieldset>
+
+      <fieldset id="penaltyFieldset" class="setup-fieldset">
+        <legend>ЕСЛИ ВРЕМЯ ВЫШЛО</legend>
+        <div class="penalty-grid">
+          <label class="option-card"><input type="radio" name="timerPenalty" value="end_turn"><span class="option-face"><strong>КОНЕЦ ХОДА</strong><small>Ход сразу переходит дилеру.</small></span></label>
+          <label class="option-card"><input type="radio" name="timerPenalty" value="discard_random"><span class="option-face"><strong>СБРОС КАРТЫ</strong><small>Случайная карта покидает руку.</small></span></label>
+          <label class="option-card"><input type="radio" name="timerPenalty" value="damage"><span class="option-face"><strong>3 УРОНА</strong><small>Щит принимает удар первым.</small></span></label>
+          <label class="option-card"><input type="radio" name="timerPenalty" value="dealer_energy"><span class="option-face"><strong>БОНУС ДИЛЕРУ</strong><small>Дилер получает +1 энергию.</small></span></label>
+        </div>
+      </fieldset>
+
+      <p id="setupSummary" class="setup-summary">Классика · без таймера</p>
+      <footer class="setup-actions"><button id="setupCancel" type="button" hidden>ВЕРНУТЬСЯ К БОЮ</button><button id="setupStart" class="primary" type="button">СЕСТЬ ЗА СТОЛ</button></footer>
+    </section>
+  </div>
+
+  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Разыгрывай карты, пока хватает энергии. Атаки бьют дилера, защитные карты дают щит, а приёмы меняют правила боя.</p><p><b>Щит</b> принимает урон первым и исчезает в начале твоего следующего хода. Когда закончишь, нажми «Завершить ход».</p><p>Режим времени и наказание выбираются перед новой сдачей. На скрытой вкладке таймер ставится на паузу.</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
+
+  <div class="result-overlay" id="resultOverlay" hidden><div class="result-card"><span id="resultEyebrow">БОЙ ОКОНЧЕН</span><h2 id="resultTitle">ПОБЕДА</h2><p id="resultText"></p><button id="resultRestart" type="button">СДАТЬ ЗАНОВО В ЭТОМ РЕЖИМЕ</button><button id="resultSettings" class="secondary-result" type="button">ИЗМЕНИТЬ РЕЖИМ</button><a href="legacy.html">Вернуться в старый забег</a></div></div>
+
   <script src="compatibility-runtime.js?v=4"></script>
-  <script src="src/core/battle-engine.js?v=6"></script>
+  <script src="src/core/battle-engine.js?v=7"></script>
+  <script src="src/core/timed-battle-engine.js?v=7"></script>
+  <script src="src/core/timer-settings.js?v=7"></script>
   <script src="src/data/stage2-assets-scene.js?v=6"></script>
   <script src="src/data/stage2-assets-a.js?v=6"></script>
   <script src="src/data/stage2-assets-b.js?v=6"></script>
   <script src="src/data/stage2-cards.js?v=6"></script>
-  <script src="src/ui/stage2-app.js?v=6"></script>
+  <script src="src/ui/stage3-app.js?v=7"></script>
+  <script src="src/ui/stage3-initial-save-guard.js?v=7"></script>
 </body>
 </html>

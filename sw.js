@@ -1,17 +1,22 @@
 "use strict";
 
-const CACHE_NAME = "bitaya-mast-v6-vertical-slice";
+const CACHE_NAME = "bitaya-mast-v7-timer-modes";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
-const STAGE_TWO_ASSETS = [
+const CURRENT_ASSETS = [
   "./index.html",
   "./legacy.html",
   "./styles/stage2.css",
+  "./styles/stage3.css",
   "./src/core/battle-engine.js",
+  "./src/core/timed-battle-engine.js",
+  "./src/core/timer-settings.js",
   "./src/data/stage2-cards.js",
   "./src/data/stage2-assets-scene.js",
   "./src/data/stage2-assets-a.js",
   "./src/data/stage2-assets-b.js",
-  "./src/ui/stage2-app.js"
+  "./src/ui/stage2-app.js",
+  "./src/ui/stage3-app.js",
+  "./src/ui/stage3-initial-save-guard.js"
 ];
 const LEGACY_ASSETS = [
   "./brand-runtime.js",
@@ -30,7 +35,7 @@ const LEGACY_ASSETS = [
   "./assets/theme/node-elite.svg",
   ...BUNDLE_PARTS
 ];
-const ASSETS = ["./", "./manifest.webmanifest", "./sw.js", ...STAGE_TWO_ASSETS, ...LEGACY_ASSETS];
+const ASSETS = ["./", "./manifest.webmanifest", "./sw.js", ...CURRENT_ASSETS, ...LEGACY_ASSETS];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
