@@ -1,16 +1,27 @@
 "use strict";
 
-const CACHE_NAME = "bitaya-mast-v11-first-act";
+const SW_VERSION = "12";
+const CACHE_NAME = "bitaya-mast-v12-resilient-pwa";
+const CACHE_PREFIX = "bitaya-mast-";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
-const CURRENT_ASSETS = [
+const CORE_ASSETS = [
+  "./",
   "./index.html",
-  "./legacy.html",
+  "./manifest.webmanifest",
+  "./assets/pwa/icon.svg",
+  "./assets/pwa/maskable.svg",
   "./styles/stage2.css",
   "./styles/stage3.css",
   "./styles/stage4.css",
   "./styles/stage5.css",
   "./styles/stage6.css",
   "./styles/stage7.css",
+  "./styles/stage8.css",
+  "./compatibility-runtime.js",
+  "./src/core/storage-vault.js",
+  "./src/core/storage-vault-extension.js",
+  "./src/core/stage8-compat.js",
+  "./src/core/pwa-manager.js",
   "./src/core/battle-engine.js",
   "./src/core/timed-battle-engine.js",
   "./src/core/timer-settings.js",
@@ -38,11 +49,13 @@ const CURRENT_ASSETS = [
   "./src/ui/stage6-app-loader.js",
   "./src/ui/stage6-dealers.js",
   "./src/ui/stage7-act.js",
+  "./src/ui/stage8-system.js",
+  "./src/ui/stage8-system-extension.js",
   "./src/ui/stage3-initial-save-guard.js"
 ];
-const LEGACY_ASSETS = [
+const OPTIONAL_ASSETS = [
+  "./legacy.html",
   "./brand-runtime.js",
-  "./compatibility-runtime.js",
   "./theme-enhancer.css",
   "./theme-enhancer.js",
   "./assets/theme/deck.svg",
@@ -57,43 +70,98 @@ const LEGACY_ASSETS = [
   "./assets/theme/node-elite.svg",
   ...BUNDLE_PARTS
 ];
-const ASSETS = ["./", "./manifest.webmanifest", "./sw.js", ...CURRENT_ASSETS, ...LEGACY_ASSETS];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
-});
-
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
-});
-
-function isApplicationShell(request) {
+async function fetchWithTimeout(request, timeoutMs) {
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  const timeout = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  try { return await fetch(request, controller ? { signal: controller.signal, cache: "no-store" } : { cache: "no-store" }); }
+  finally { if (timeout) clearTimeout(timeout); }
+}
+async function cacheOne(cache, url) {
+  try {
+    const response = await fetch(new Request(url, { cache: "reload" }));
+    if (response.ok) await cache.put(url, response.clone());
+    return response.ok;
+  } catch (error) { return false; }
+}
+async function installAssets() {
+  const cache = await caches.open(CACHE_NAME);
+  const coreResults = await Promise.all(CORE_ASSETS.map((url) => cacheOne(cache, url)));
+  if (coreResults.some((result) => !result)) throw new Error("Не удалось закэшировать всё игровое ядро.");
+  await Promise.allSettled(OPTIONAL_ASSETS.map((url) => cacheOne(cache, url)));
+  if (!self.registration.active) await self.skipWaiting();
+}
+async function removeOldCaches() {
+  const keys = await caches.keys();
+  await Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key)));
+}
+async function cacheMatch(request) { return caches.match(request, { ignoreSearch: true }); }
+async function networkFirst(request, timeoutMs, fallbackUrl) {
+  try {
+    const response = await fetchWithTimeout(request, timeoutMs);
+    if (response && response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone()).catch(() => null);
+    }
+    return response;
+  } catch (error) {
+    const cached = await cacheMatch(request);
+    if (cached) return cached;
+    if (fallbackUrl) {
+      const fallback = await cacheMatch(fallbackUrl);
+      if (fallback) return fallback;
+    }
+    throw error;
+  }
+}
+async function staleWhileRevalidate(request) {
+  const cached = await cacheMatch(request);
+  const update = fetch(request).then(async (response) => {
+    if (response && response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  }).catch(() => null);
+  if (cached) { update.catch(() => null); return cached; }
+  return (await update) || Response.error();
+}
+function isNavigation(request) {
   if (request.mode === "navigate") return true;
   const url = new URL(request.url);
   return url.pathname.endsWith("/") || url.pathname.endsWith("/index.html") || url.pathname.endsWith("/legacy.html");
 }
+function isVersionedCode(request) { return /\.(?:js|css|html|webmanifest)$/.test(new URL(request.url).pathname); }
 
+self.addEventListener("install", (event) => { event.waitUntil(installAssets()); });
+self.addEventListener("activate", (event) => {
+  event.waitUntil((async () => {
+    await removeOldCaches();
+    if (self.registration.navigationPreload) { try { await self.registration.navigationPreload.enable(); } catch (error) { /* optional */ } }
+    await self.clients.claim();
+  })());
+});
+self.addEventListener("message", (event) => {
+  const message = event.data || {};
+  if (message.type === "SKIP_WAITING") self.skipWaiting();
+  if (message.type === "CLEAR_OLD_CACHES") event.waitUntil(removeOldCaches());
+  if (message.type === "GET_VERSION" && event.ports && event.ports[0]) event.ports[0].postMessage({ version: SW_VERSION, cacheName: CACHE_NAME, state: self.registration.active ? "active" : "waiting" });
+});
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
-  if (isApplicationShell(event.request)) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
-          return response;
-        })
-        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
-    );
+  const request = event.request;
+  if (request.method !== "GET") return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (isNavigation(request)) {
+    event.respondWith((async () => {
+      try { const preload = await event.preloadResponse; if (preload) return preload; } catch (error) { /* continue */ }
+      return networkFirst(request, 4500, "./index.html");
+    })());
     return;
   }
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
-      if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
-      return response;
-    }))
-  );
+  if (isVersionedCode(request)) {
+    event.respondWith(networkFirst(request, 3500).then((response) => response || Response.error()).catch(async () => (await cacheMatch(request)) || Response.error()));
+    return;
+  }
+  event.respondWith(staleWhileRevalidate(request));
 });
