@@ -1,7 +1,8 @@
 {
-  "name": "Последний расклад",
-  "short_name": "Расклад",
-  "description": "Мрачный браузерный карточный roguelike.",
+  "id": "bitaya-mast",
+  "name": "Битая масть",
+  "short_name": "Масть",
+  "description": "Мрачный карточный roguelike с дуэлями против дилеров.",
   "lang": "ru",
   "start_url": "./",
   "display": "standalone",
