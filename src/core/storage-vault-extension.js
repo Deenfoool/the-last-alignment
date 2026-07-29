@@ -29,7 +29,9 @@
     const raw = target.getItem(Base.SNAPSHOT_KEY);
     if (!raw) return { restored: 0 };
     const bundle = parseBundle(JSON.parse(raw));
-    bundle.entries.forEach((entry) => Base.setRaw(entry.key, entry.raw, target));
+    const snapshotKeys = new Set(bundle.entries.map((entry) => entry.key));
+    Base.listManagedKeys(target).forEach((key) => { if (!snapshotKeys.has(key)) Base.remove(key, target, { skipBackup: true }); });
+    bundle.entries.forEach((entry) => Base.setRaw(entry.key, entry.raw, target, { skipBackup: true }));
     target.removeItem(Base.SNAPSHOT_KEY);
     return { restored: bundle.entries.length };
   }
