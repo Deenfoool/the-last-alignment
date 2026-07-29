@@ -10,6 +10,7 @@
     :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d0b12; color: #f4ead8; }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: radial-gradient(circle at 50% 20%, #2a2038, #0d0b12 58%); }
+    button, [role="button"] { touch-action: manipulation; }
     .loader { width: min(540px, calc(100% - 32px)); padding: 36px; text-align: center; border: 1px solid #6f5c433d; border-radius: 24px; background: #17131ee8; box-shadow: 0 28px 90px #0009; }
     .sigil { font-size: 62px; color: #e8bc70; filter: drop-shadow(0 0 18px #d79b4955); }
     h1 { margin: 12px 0 8px; font-family: Georgia, serif; font-size: clamp(32px, 7vw, 54px); }
@@ -19,6 +20,7 @@
     .error { color: #ef9494; white-space: pre-wrap; }
     @keyframes move { from { transform: translateX(-70%); } to { transform: translateX(210%); } }
   </style>
+  <script src="compatibility-runtime.js?v=4"></script>
 </head>
 <body>
   <main class="loader" id="loader">
@@ -64,7 +66,7 @@
     }
 
     async function unpackBundle() {
-      if (!("DecompressionStream" in window) || !crypto?.subtle) {
+      if (!("DecompressionStream" in window) || !window.crypto || !window.crypto.subtle) {
         throw new Error("Нужен современный браузер с поддержкой DecompressionStream и Web Crypto.");
       }
 
@@ -77,7 +79,7 @@
       );
       const encoded = (await Promise.all(requests)).join("");
       const archive = base64ToBytes(encoded);
-      const hash = bytesToHex(new Uint8Array(await crypto.subtle.digest("SHA-256", archive)));
+      const hash = bytesToHex(new Uint8Array(await window.crypto.subtle.digest("SHA-256", archive)));
       if (hash !== BUNDLE_HASH) throw new Error("Контрольная сумма сборки не совпала. Обновите страницу без кэша.");
 
       loaderText.textContent = "Проверяем карты, события и маршрут…";
@@ -105,7 +107,7 @@
 
       const illustratedTheme = document.createElement("link");
       illustratedTheme.rel = "stylesheet";
-      illustratedTheme.href = "theme-enhancer.css?v=3";
+      illustratedTheme.href = "theme-enhancer.css?v=4";
       illustratedTheme.dataset.source = "illustrated-theme";
       document.head.append(illustratedTheme);
 
@@ -119,7 +121,7 @@
       }
 
       const themeRuntime = document.createElement("script");
-      themeRuntime.src = "theme-enhancer.js?v=3";
+      themeRuntime.src = "theme-enhancer.js?v=4";
       themeRuntime.dataset.source = "illustrated-theme-runtime";
       document.body.append(themeRuntime);
     }
@@ -129,10 +131,13 @@
       .catch((error) => {
         console.error(error);
         const loader = document.querySelector("#loader");
-        loader.querySelector(".bar")?.remove();
-        const text = loader.querySelector("#loaderText");
-        text.classList.add("error");
-        text.textContent = `Не удалось запустить игру.\n${error.message}`;
+        const bar = loader && loader.querySelector(".bar");
+        if (bar) bar.remove();
+        const text = loader && loader.querySelector("#loaderText");
+        if (text) {
+          text.classList.add("error");
+          text.textContent = `Не удалось запустить игру.\n${error.message}`;
+        }
       });
   </script>
 </body>
