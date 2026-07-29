@@ -124,6 +124,13 @@
       lastError: lastError ? lastError.message || String(lastError) : null,
     };
   }
+  function loadRollbackExtension() {
+    if (!root.document || root.document.querySelector("script[data-stage8-rollback]")) return;
+    const script = root.document.createElement("script");
+    script.src = "src/ui/stage8-system-extension.js?v=12";
+    script.dataset.stage8Rollback = "true";
+    root.document.body.append(script);
+  }
 
   if (root && root.addEventListener) {
     root.addEventListener("online", () => { notify("online", {}); checkForUpdate().catch(() => null); });
@@ -134,6 +141,10 @@
       notify("controller-changed", {});
       if (!reloading) { reloading = true; root.location.reload(); }
     });
+    if (root.document) {
+      if (root.document.readyState === "loading") root.document.addEventListener("DOMContentLoaded", loadRollbackExtension, { once: true });
+      else root.setTimeout(loadRollbackExtension, 0);
+    }
   }
 
   return Object.freeze({ VERSION, supported, displayMode, subscribe, register, checkForUpdate, applyUpdate, workerVersion, clearCaches, cacheStatus, canInstall, promptInstall, status });
