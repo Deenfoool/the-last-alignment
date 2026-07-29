@@ -4,11 +4,18 @@
   "short_name": "Масть",
   "description": "Мрачный карточный roguelike с полным первым актом, маршрутами, событиями и семью дилерами.",
   "lang": "ru",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#080606",
   "theme_color": "#0b0808",
-  "icons": []
+  "categories": ["games", "entertainment"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "assets/pwa/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/pwa/maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
 }
