@@ -67,21 +67,31 @@
   async function workerVersion() {
     if (!supported()) return null;
     const target = root.navigator.serviceWorker.controller || (registration && (registration.active || registration.waiting));
-    if (!target || typeof MessageChannel === "undefined") return null;
+    const Channel = root.MessageChannel || (typeof MessageChannel !== "undefined" ? MessageChannel : null);
+    if (!target || !Channel) return null;
     return new Promise((resolve) => {
-      const channel = new MessageChannel();
+      const channel = new Channel();
       const timeout = root.setTimeout(() => resolve(null), 1200);
       channel.port1.onmessage = (event) => { root.clearTimeout(timeout); resolve(event.data || null); };
       target.postMessage({ type: "GET_VERSION" }, [channel.port2]);
     });
   }
   async function clearCaches() {
-    if (!root.caches || typeof root.caches.keys !== "function") return 0;
-    const keys = await root.caches.keys();
-    const selected = keys.filter((key) => key.startsWith("bitaya-mast-"));
-    await Promise.all(selected.map((key) => root.caches.delete(key)));
-    if (registration && registration.active) registration.active.postMessage({ type: "CLEAR_OLD_CACHES" });
-    return selected.length;
+    let removed = 0;
+    if (root.caches && typeof root.caches.keys === "function") {
+      const keys = await root.caches.keys();
+      const selected = keys.filter((key) => key.startsWith("bitaya-mast-"));
+      await Promise.all(selected.map((key) => root.caches.delete(key)));
+      removed = selected.length;
+    }
+    if (supported()) {
+      if (!registration) registration = await root.navigator.serviceWorker.getRegistration("./");
+      if (registration) {
+        try { await registration.unregister(); } catch (error) { lastError = error; }
+        registration = null;
+      }
+    }
+    return removed;
   }
   async function cacheStatus() {
     if (!root.caches || typeof root.caches.keys !== "function") return { supported: false, keys: [] };
