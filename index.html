@@ -2,151 +2,38 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#100d18">
-  <meta name="description" content="Битая масть — мрачный карточный roguelike с дуэлями против дилеров.">
-  <meta name="application-name" content="Битая масть">
-  <title>Битая масть — загрузка</title>
-  <style>
-    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d0b12; color: #f4ead8; }
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: radial-gradient(circle at 50% 20%, #2a2038, #0d0b12 58%); }
-    button, [role="button"] { touch-action: manipulation; }
-    .loader { width: min(540px, calc(100% - 32px)); padding: 36px; text-align: center; border: 1px solid #6f5c433d; border-radius: 24px; background: #17131ee8; box-shadow: 0 28px 90px #0009; }
-    .sigil { font-size: 62px; color: #e8bc70; filter: drop-shadow(0 0 18px #d79b4955); }
-    h1 { margin: 12px 0 8px; font-family: Georgia, serif; font-size: clamp(32px, 7vw, 54px); }
-    p { margin: 0; color: #b9adb6; line-height: 1.6; }
-    .bar { height: 7px; margin-top: 24px; overflow: hidden; border-radius: 999px; background: #ffffff14; }
-    .bar::after { content: ""; display: block; width: 42%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ad7149, #f0c978); animation: move 1.1s ease-in-out infinite alternate; }
-    .error { color: #ef9494; white-space: pre-wrap; }
-    @keyframes move { from { transform: translateX(-70%); } to { transform: translateX(210%); } }
-  </style>
-  <script src="brand-runtime.js?v=5"></script>
-  <script src="compatibility-runtime.js?v=4"></script>
-  <script src="src/core/battle-engine.js?v=1"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0808">
+  <meta name="description" content="Битая масть — мрачная карточная дуэль с мемными картами.">
+  <title>Битая масть — дуэль</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles/stage2.css?v=6">
 </head>
 <body>
-  <main class="loader" id="loader">
-    <div class="sigil" aria-hidden="true">♠</div>
-    <h1>Битая масть</h1>
-    <p id="loaderText">Разворачиваем игровой мир…</p>
-    <div class="bar" aria-hidden="true"></div>
-  </main>
-
-  <script>
-    "use strict";
-
-    const BUNDLE_PARTS = 7;
-    const BUNDLE_HASH = "c91fb6c1dccd4aec9c07ccd77ea43e076dd7beea13abfcb6debf8338a5a38313";
-    const decoder = new TextDecoder();
-
-    function base64ToBytes(value) {
-      const binary = atob(value.replace(/\s+/g, ""));
-      const bytes = new Uint8Array(binary.length);
-      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-      return bytes;
-    }
-
-    function bytesToHex(bytes) {
-      return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-    }
-
-    function parseTar(bytes) {
-      const files = new Map();
-      let offset = 0;
-      while (offset + 512 <= bytes.length) {
-        const header = bytes.slice(offset, offset + 512);
-        if (header.every((byte) => byte === 0)) break;
-        const name = decoder.decode(header.slice(0, 100)).replace(/\0.*$/, "");
-        const sizeText = decoder.decode(header.slice(124, 136)).replace(/\0.*$/, "").trim();
-        const size = Number.parseInt(sizeText || "0", 8);
-        const start = offset + 512;
-        const end = start + size;
-        files.set(name.replace(/^\.\//, ""), bytes.slice(start, end));
-        offset = start + Math.ceil(size / 512) * 512;
-      }
-      return files;
-    }
-
-    async function unpackBundle() {
-      if (!("DecompressionStream" in window) || !window.crypto || !window.crypto.subtle) {
-        throw new Error("Нужен современный браузер с поддержкой DecompressionStream и Web Crypto.");
-      }
-
-      const loaderText = document.querySelector("#loaderText");
-      const requests = Array.from({ length: BUNDLE_PARTS }, (_, index) =>
-        fetch(`.upgrade/part${String(index).padStart(2, "0")}.txt`, { cache: "no-store" }).then((response) => {
-          if (!response.ok) throw new Error(`Не удалось загрузить часть ${index + 1}.`);
-          return response.text();
-        })
-      );
-      const encoded = (await Promise.all(requests)).join("");
-      const archive = base64ToBytes(encoded);
-      const hash = bytesToHex(new Uint8Array(await window.crypto.subtle.digest("SHA-256", archive)));
-      if (hash !== BUNDLE_HASH) throw new Error("Контрольная сумма сборки не совпала. Обновите страницу без кэша.");
-
-      loaderText.textContent = "Проверяем карты, события и маршрут…";
-      const stream = new Blob([archive]).stream().pipeThrough(new DecompressionStream("gzip"));
-      const unpacked = new Uint8Array(await new Response(stream).arrayBuffer());
-      const files = parseTar(unpacked);
-      for (const required of ["index.html", "styles.css", "data.js", "game.js"]) {
-        if (!files.has(required)) throw new Error(`В сборке отсутствует ${required}.`);
-      }
-      return files;
-    }
-
-    function mountGame(files) {
-      const source = decoder.decode(files.get("index.html"));
-      const parsed = new DOMParser().parseFromString(source, "text/html");
-      parsed.querySelectorAll('link[href="styles.css"], script[src="data.js"], script[src="game.js"]').forEach((node) => node.remove());
-
-      document.documentElement.lang = parsed.documentElement.lang || "ru";
-      document.head.replaceChildren(...Array.from(parsed.head.childNodes).map((node) => document.importNode(node, true)));
-
-      const bundledStyle = document.createElement("style");
-      bundledStyle.dataset.source = "bundled-styles";
-      bundledStyle.textContent = decoder.decode(files.get("styles.css"));
-      document.head.append(bundledStyle);
-
-      const illustratedTheme = document.createElement("link");
-      illustratedTheme.rel = "stylesheet";
-      illustratedTheme.href = "theme-enhancer.css?v=4";
-      illustratedTheme.dataset.source = "illustrated-theme";
-      document.head.append(illustratedTheme);
-
-      document.body.replaceChildren(...Array.from(parsed.body.childNodes).map((node) => document.importNode(node, true)));
-
-      for (const fileName of ["data.js", "game.js"]) {
-        const script = document.createElement("script");
-        script.dataset.source = fileName;
-        script.textContent = `${decoder.decode(files.get(fileName))}\n//# sourceURL=${fileName}`;
-        document.body.append(script);
-      }
-
-      const themeRuntime = document.createElement("script");
-      themeRuntime.src = "theme-enhancer.js?v=4";
-      themeRuntime.dataset.source = "illustrated-theme-runtime";
-      document.body.append(themeRuntime);
-
-      if (window.BitayaMastBrand) {
-        document.title = "Битая масть";
-        document.documentElement.dataset.brand = window.BitayaMastBrand.slug;
-      }
-    }
-
-    unpackBundle()
-      .then(mountGame)
-      .catch((error) => {
-        console.error(error);
-        const loader = document.querySelector("#loader");
-        const bar = loader && loader.querySelector(".bar");
-        if (bar) bar.remove();
-        const text = loader && loader.querySelector("#loaderText");
-        if (text) {
-          text.classList.add("error");
-          text.textContent = `Не удалось запустить игру.\n${error.message}`;
-        }
-      });
-  </script>
+  <div id="app" class="game-shell" aria-live="polite">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Битая масть"><span class="brand-mark">☠</span><span>БИТАЯ МАСТЬ</span><small>вертикальный срез</small></a>
+      <nav class="top-actions" aria-label="Меню"><button id="helpButton" class="icon-button" type="button" title="Правила">?</button><a class="icon-button" href="legacy.html" title="Старый прототип">↩</a><button id="restartButton" class="icon-button" type="button" title="Новый бой">⟳</button></nav>
+    </header>
+    <main class="battle-layout">
+      <aside class="hud-panel" aria-label="Показатели боя">
+        <section class="hud-actor player-hud" id="playerHud"><h2>ИГРОК</h2><div class="stat-row health"><span class="stat-icon">♥</span><div><b>ЗДОРОВЬЕ</b><strong id="playerHp">0 / 0</strong></div><div class="segments" id="playerHpBar"></div></div><div class="stat-row shield"><span class="stat-icon">⬟</span><div><b>ЩИТ</b><strong id="playerShield">0</strong></div><div class="segments" id="playerShieldBar"></div></div><div class="stat-row energy"><span class="stat-icon">ϟ</span><div><b>ЭНЕРГИЯ</b><strong id="playerEnergy">0 / 0</strong></div><div class="energy-pips" id="playerEnergyPips"></div></div><div class="status-list" id="playerStatuses"></div></section>
+        <section class="hud-actor dealer-hud" id="dealerHud"><h2>ДИЛЕР</h2><div class="stat-row health"><span class="stat-icon">♥</span><div><b>ЗДОРОВЬЕ</b><strong id="dealerHp">0 / 0</strong></div><div class="segments" id="dealerHpBar"></div></div><div class="stat-row shield"><span class="stat-icon">⬟</span><div><b>ЩИТ</b><strong id="dealerShield">0</strong></div><div class="segments" id="dealerShieldBar"></div></div><div class="stat-row energy"><span class="stat-icon">ϟ</span><div><b>ЭНЕРГИЯ</b><strong id="dealerEnergy">0 / 0</strong></div><div class="energy-pips" id="dealerEnergyPips"></div></div><div class="status-list" id="dealerStatuses"></div></section>
+        <section class="round-panel"><div><span>РАУНД</span><strong id="roundValue">1</strong></div><div><span>ХОД</span><strong id="turnValue">ИГРОКА</strong></div></section>
+      </aside>
+      <section class="scene" id="scene" aria-label="Игровой стол"><div class="scene-vignette"></div><div class="dealer-nameplate"><strong>ШУЛЕР</strong><span id="dealerQuote">«В каждой игре я знаю, где у тебя слабое место»</span></div><div class="dealer-hand" id="dealerHand" aria-label="Карты дилера"></div><div class="impact-layer" id="impactLayer" aria-hidden="true"></div><div class="floating-message" id="floatingMessage" role="status"></div><div class="table-zones"><button class="pile draw-pile" id="drawPile" type="button" aria-label="Колода игрока"><span class="pile-stack"></span><b>КОЛОДА</b><strong id="drawCount">0</strong></button><div class="table-sigil">☠</div><button class="pile discard-pile" id="discardPile" type="button" aria-label="Сброс игрока"><span class="pile-stack"></span><b>СБРОС</b><strong id="discardCount">0</strong></button></div></section>
+      <aside class="action-panel"><section class="intent-card" id="intentCard"><span>НАМЕРЕНИЕ ДИЛЕРА</span><strong id="intentTitle">ПРИСМАТРИВАЕТСЯ</strong><p id="intentText">Дилер выбирает карту.</p></section><section class="timer-box" id="timerBox"><span>ТАЙМЕР ХОДА</span><strong id="timerValue">00:45</strong><div class="timer-track"><i id="timerProgress"></i></div></section><button id="endTurnButton" class="end-turn" type="button"><span>ЗАВЕРШИТЬ ХОД</span><small>ПРОБЕЛ</small></button><section class="battle-log" id="battleLog" aria-label="Последние события"></section></aside>
+    </main>
+    <section class="hand-dock" aria-label="Рука игрока"><div class="hand" id="hand"></div><p class="hand-hint">Наведи курсор для подробностей · на телефоне нажми на карту</p></section>
+  </div>
+  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Разыгрывай карты, пока хватает энергии. Атаки бьют дилера, защитные карты дают щит, а приёмы меняют правила боя.</p><p><b>Щит</b> принимает урон первым и исчезает в начале твоего следующего хода. Когда закончишь, нажми «Завершить ход».</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
+  <div class="result-overlay" id="resultOverlay" hidden><div class="result-card"><span id="resultEyebrow">БОЙ ОКОНЧЕН</span><h2 id="resultTitle">ПОБЕДА</h2><p id="resultText"></p><button id="resultRestart" type="button">СДАТЬ ЗАНОВО</button><a href="legacy.html">Вернуться в старый забег</a></div></div>
+  <script src="compatibility-runtime.js?v=4"></script>
+  <script src="src/core/battle-engine.js?v=6"></script>
+  <script src="src/data/stage2-assets-scene.js?v=6"></script>
+  <script src="src/data/stage2-assets-a.js?v=6"></script>
+  <script src="src/data/stage2-assets-b.js?v=6"></script>
+  <script src="src/data/stage2-cards.js?v=6"></script>
+  <script src="src/ui/stage2-app.js?v=6"></script>
 </body>
 </html>
