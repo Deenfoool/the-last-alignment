@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/stage-1-battle-core
+      - feature/stage-2-vertical-slice
   pull_request:
 
 permissions:
@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Unpack verified source bundle
+      - name: Unpack verified legacy bundle
         run: python scripts/unpack-bundle.py /tmp/the-last-alignment-source
 
       - name: Check JavaScript syntax
@@ -36,7 +36,13 @@ jobs:
           node --check theme-enhancer.js
           node --check src/core/battle-engine.js
           node --check src/core/sample-cards.js
+          node --check src/data/stage2-cards.js
+          node --check src/data/stage2-assets-scene.js
+          node --check src/data/stage2-assets-a.js
+          node --check src/data/stage2-assets-b.js
+          node --check src/ui/stage2-app.js
           node --check scripts/test-battle-engine.js
+          node --check scripts/test-stage2-battle.js
           node --check sw.js
 
       - name: Validate legacy game data
@@ -47,27 +53,26 @@ jobs:
       - name: Test deterministic battle engine
         run: node scripts/test-battle-engine.js
 
-      - name: Check runtime, branding and assets
+      - name: Smoke-test vertical slice
+        run: node scripts/test-stage2-battle.js
+
+      - name: Check vertical-slice files and assets
         run: |
-          test -f index.html
-          test -f manifest.webmanifest
-          test -f sw.js
-          test -f brand-runtime.js
-          test -f compatibility-runtime.js
-          test -f theme-enhancer.css
-          test -f theme-enhancer.js
-          test -f src/core/battle-engine.js
-          test -f docs/BATTLE_ENGINE.md
-          test -f .upgrade/part00.txt
-          test -f .upgrade/part06.txt
-          for asset in deck hero enemy icon-attack icon-skill icon-power node-battle node-event node-rest node-elite; do
-            test -s "assets/theme/${asset}.svg"
-          done
-          grep -q 'BUNDLE_HASH' index.html
-          grep -q 'DecompressionStream' index.html
-          grep -q 'brand-runtime.js?v=5' index.html
-          grep -q 'src/core/battle-engine.js?v=1' index.html
-          grep -q 'Битая масть' index.html
-          grep -q 'Битая масть' manifest.webmanifest
-          grep -q 'bitaya-mast-v5-stage-one' sw.js
-          grep -q 'assets/theme/deck.svg' theme-enhancer.css
+          test -s index.html
+          test -s legacy.html
+          test -s styles/stage2.css
+          test -s src/data/stage2-cards.js
+          test -s src/data/stage2-assets-scene.js
+          test -s src/data/stage2-assets-a.js
+          test -s src/data/stage2-assets-b.js
+          test -s src/ui/stage2-app.js
+          test -s docs/VISUAL_GUIDE.md
+          grep -q -- '--dealer-scene' styles/stage2.css
+          grep -q 'data:image/webp;base64' src/data/stage2-assets-scene.js
+          grep -q 'data:image/webp;base64' src/data/stage2-assets-a.js
+          grep -q 'data:image/webp;base64' src/data/stage2-assets-b.js
+          grep -q 'БИТАЯ МАСТЬ' index.html
+          grep -q 'bitaya-mast-v6-vertical-slice' sw.js
+          grep -q 'legacy.html' sw.js
+          grep -q 'src/ui/stage2-app.js' index.html
+          grep -q 'BUNDLE_HASH' legacy.html
