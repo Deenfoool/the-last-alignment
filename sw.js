@@ -15,7 +15,8 @@ const CURRENT_ASSETS = [
   "./src/data/stage2-assets-a.js",
   "./src/data/stage2-assets-b.js",
   "./src/ui/stage2-app.js",
-  "./src/ui/stage3-app.js"
+  "./src/ui/stage3-app.js",
+  "./src/ui/stage3-initial-save-guard.js"
 ];
 const LEGACY_ASSETS = [
   "./brand-runtime.js",
