@@ -1,0 +1,64 @@
+@import url("./stage3.css?v=7");
+
+.catalog-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 5px 9px;
+  border: 2px solid #493929;
+  background: rgba(13, 11, 9, .92);
+  color: #a89472;
+  box-shadow: inset 0 0 0 1px #1c1510, 0 8px 24px #0008;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.game-card .card-art {
+  image-rendering: pixelated;
+  background-size: cover;
+  background-position: center;
+}
+
+.game-card[data-rarity="rare"] {
+  box-shadow: 0 13px 24px #000c, inset 0 0 0 2px #312519, 0 0 14px #4f86a833;
+}
+
+.game-card[data-rarity="epic"] {
+  box-shadow: 0 13px 24px #000c, inset 0 0 0 2px #312519, 0 0 17px #8e4ea344;
+}
+
+.game-card[data-rarity="legendary"] {
+  box-shadow: 0 13px 24px #000c, inset 0 0 0 2px #312519, 0 0 21px #d09a354f;
+}
+
+.game-card[data-rarity="legendary"] .card-rarity {
+  color: #120c06;
+  background: linear-gradient(90deg, #8b551b, #e1ae46 50%, #8b551b);
+  text-shadow: 0 1px #f0d28a;
+}
+
+.game-card[data-rarity="curse"] {
+  filter: saturate(.82);
+}
+
+.game-card[data-rarity="curse"] .card-art {
+  animation: curse-noise 1.4s steps(2, end) infinite;
+}
+
+.scene {
+  background-position: center 8%;
+}
+
+@keyframes curse-noise {
+  50% { filter: contrast(1.18) brightness(.85) hue-rotate(8deg); }
+}
+
+@media (min-width: 1300px) {
+  .scene { background-size: 108% auto; }
+}
+
+@media (max-width: 760px) {
+  .catalog-badge { display: none; }
+}
