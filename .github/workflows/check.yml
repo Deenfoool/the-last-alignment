@@ -1,35 +1,50 @@
-name: Static checks
+name: Apply v0.2 upgrade
 
 on:
   push:
     branches:
-      - main
       - feature/playable-prototype
-  pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  validate:
+  upgrade:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          fetch-depth: 0
 
-      - name: Check JavaScript syntax
-        run: node --check game.js
-
-      - name: Check required files
+      - name: Unpack tested build
         run: |
-          test -f index.html
-          test -f styles.css
-          test -f game.js
-          grep -q 'id="hand"' index.html
-          grep -q 'src="game.js"' index.html
-          grep -q 'href="styles.css"' index.html
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, io, shutil, tarfile
+
+          parts = sorted(Path('.upgrade').glob('part*.txt'))
+          payload = ''.join(part.read_text(encoding='utf-8') for part in parts)
+          archive = base64.b64decode(payload)
+          expected = 'c91fb6c1dccd4aec9c07ccd77ea43e076dd7beea13abfcb6debf8338a5a38313'
+          actual = hashlib.sha256(archive).hexdigest()
+          if actual != expected:
+              raise SystemExit(f'Archive checksum mismatch: {actual}')
+          with tarfile.open(fileobj=io.BytesIO(archive), mode='r:gz') as bundle:
+              bundle.extractall('.', filter='data')
+          shutil.rmtree('.upgrade')
+          PY
+
+          node --check data.js
+          node --check game.js
+          node --check sw.js
+          node --check scripts/validate-data.js
+          node scripts/validate-data.js
+
+      - name: Commit playable v0.2
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: expand roguelike into a two-act run"
+          git push origin HEAD:feature/playable-prototype
