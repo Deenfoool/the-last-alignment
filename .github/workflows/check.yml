@@ -1,0 +1,49 @@
+name: Static checks
+
+on:
+  push:
+    branches:
+      - main
+      - feature/playable-prototype
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Unpack verified source bundle
+        run: python scripts/unpack-bundle.py /tmp/the-last-alignment-source
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check /tmp/the-last-alignment-source/data.js
+          node --check /tmp/the-last-alignment-source/game.js
+          node --check /tmp/the-last-alignment-source/sw.js
+          node --check /tmp/the-last-alignment-source/scripts/validate-data.js
+
+      - name: Validate game data
+        run: |
+          cd /tmp/the-last-alignment-source
+          node scripts/validate-data.js
+
+      - name: Check runtime files
+        run: |
+          test -f index.html
+          test -f manifest.webmanifest
+          test -f sw.js
+          test -f .upgrade/part00.txt
+          test -f .upgrade/part06.txt
+          grep -q 'BUNDLE_HASH' index.html
+          grep -q 'DecompressionStream' index.html
+          grep -q 'the-last-alignment-v2-bundle' sw.js

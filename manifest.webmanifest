@@ -1,0 +1,11 @@
+{
+  "name": "Последний расклад",
+  "short_name": "Расклад",
+  "description": "Мрачный браузерный карточный roguelike.",
+  "lang": "ru",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0910",
+  "theme_color": "#0d0b12",
+  "icons": []
+}
