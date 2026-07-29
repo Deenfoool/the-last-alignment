@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0808">
-  <meta name="description" content="Битая масть — мрачная карточная дуэль с коллекцией из 30 мемных карт.">
+  <meta name="description" content="Битая масть — мрачная карточная дуэль с семью дилерами и коллекцией из 30 мемных карт.">
   <title>Битая масть — дуэль</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles/stage5.css?v=9">
+  <link rel="stylesheet" href="styles/stage6.css?v=10">
 </head>
 <body>
   <div id="app" class="game-shell" aria-live="polite">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Битая масть"><span class="brand-mark">☠</span><span>БИТАЯ МАСТЬ</span><small>30 карт</small></a>
-      <span id="catalogBadge" class="catalog-badge">30 КАРТ</span>
+      <a class="brand" href="./" aria-label="Битая масть"><span class="brand-mark">☠</span><span>БИТАЯ МАСТЬ</span><small>7 дилеров</small></a>
+      <span id="catalogBadge" class="catalog-badge">7 ДИЛЕРОВ</span>
       <nav class="top-actions" aria-label="Меню">
         <button id="deckButton" class="icon-button" type="button" title="Моя колода">▥</button>
         <button id="helpButton" class="icon-button" type="button" title="Правила">?</button>
-        <button id="settingsButton" class="icon-button" type="button" title="Режим времени">⚙</button>
+        <button id="settingsButton" class="icon-button" type="button" title="Режим времени и дилер">⚙</button>
         <a class="icon-button" href="legacy.html" title="Старый прототип">↩</a>
         <button id="restartButton" class="icon-button" type="button" title="Новая сдача">⟳</button>
       </nav>
@@ -32,7 +32,7 @@
 
       <section class="scene" id="scene" aria-label="Игровой стол">
         <div class="scene-vignette"></div>
-        <div class="dealer-nameplate"><strong>ШУЛЕР</strong><span id="dealerQuote">«В каждой игре я знаю, где у тебя слабое место»</span></div>
+        <div class="dealer-nameplate"><strong>ДИЛЕР</strong><span id="dealerQuote">«Садись. Карты уже ждут.»</span></div>
         <div class="dealer-hand" id="dealerHand" aria-label="Карты дилера"></div>
         <div class="impact-layer" id="impactLayer" aria-hidden="true"></div>
         <div class="floating-message" id="floatingMessage" role="status"></div>
@@ -47,12 +47,12 @@
       </aside>
     </main>
 
-    <section class="hand-dock" aria-label="Рука игрока"><div class="hand" id="hand"></div><p class="hand-hint">Открой «Мою колоду», чтобы посмотреть все карты, улучшения и полный лор</p></section>
+    <section class="hand-dock" aria-label="Рука игрока"><div class="hand" id="hand"></div><p class="hand-hint">У каждого дилера собственная колода, способность и стиль принятия решений</p></section>
   </div>
 
   <div id="setupOverlay" class="setup-overlay" hidden>
     <section id="setupPanel" class="setup-panel" tabindex="-1" aria-labelledby="setupTitle">
-      <header class="setup-heading"><span class="skull">☠</span><div><h1 id="setupTitle">ПРАВИЛА СДАЧИ</h1><p>Выбери, сколько времени тебе даст Шулер и чем заплатишь за промедление.</p></div></header>
+      <header class="setup-heading"><span class="skull">☠</span><div><h1 id="setupTitle">ПРАВИЛА СДАЧИ</h1><p>Выбери противника, время хода и цену промедления.</p></div></header>
       <fieldset class="setup-fieldset"><legend>РЕЖИМ ВРЕМЕНИ</legend><div class="preset-grid"><label class="option-card"><input type="radio" name="timerMode" value="classic"><span class="option-face"><strong>КЛАССИКА</strong><small>Без таймера. Можно думать сколько угодно.</small></span></label><label class="option-card"><input type="radio" name="timerMode" value="relaxed"><span class="option-face"><strong>БЫСТРЫЙ</strong><small>60 секунд на каждый ход игрока.</small></span></label><label class="option-card"><input type="radio" name="timerMode" value="hardcore"><span class="option-face"><strong>ХАРДКОР</strong><small>30 секунд. Ошибка дорого обходится.</small></span></label><label class="option-card"><input type="radio" name="timerMode" value="custom"><span class="option-face"><strong>СВОЙ РЕЖИМ</strong><small>Установи от 10 до 180 секунд.</small></span></label></div><div id="customTimerRow" class="custom-timer-row" hidden><input id="customSeconds" type="range" min="10" max="180" step="5" value="45" aria-label="Секунд на ход"><input id="customSecondsNumber" type="number" min="10" max="180" step="5" value="45" aria-label="Секунд на ход числом"></div></fieldset>
       <fieldset id="penaltyFieldset" class="setup-fieldset"><legend>ЕСЛИ ВРЕМЯ ВЫШЛО</legend><div class="penalty-grid"><label class="option-card"><input type="radio" name="timerPenalty" value="end_turn"><span class="option-face"><strong>КОНЕЦ ХОДА</strong><small>Ход сразу переходит дилеру.</small></span></label><label class="option-card"><input type="radio" name="timerPenalty" value="discard_random"><span class="option-face"><strong>СБРОС КАРТЫ</strong><small>Случайная карта покидает руку.</small></span></label><label class="option-card"><input type="radio" name="timerPenalty" value="damage"><span class="option-face"><strong>3 УРОНА</strong><small>Щит принимает удар первым.</small></span></label><label class="option-card"><input type="radio" name="timerPenalty" value="dealer_energy"><span class="option-face"><strong>БОНУС ДИЛЕРУ</strong><small>Дилер получает +1 энергию.</small></span></label></div></fieldset>
       <p id="setupSummary" class="setup-summary">Классика · без таймера</p>
@@ -67,35 +67,25 @@
         <div class="content-mode-wrap"><div id="contentModeToggle" class="content-mode-toggle" role="group" aria-label="Режим текста"><button type="button" data-content-mode="adult">ВЗРОСЛЫЙ</button><button type="button" data-content-mode="safe">БЕЗОПАСНЫЙ</button></div><small id="contentModeNote"></small></div>
         <button id="deckClose" class="deck-close" type="button" aria-label="Закрыть колоду">×</button>
       </header>
-
       <div class="deck-screen-body">
         <aside class="deck-sidebar" aria-label="Фильтры колоды">
           <section><h3>НАБОР КАРТ</h3><div id="deckViewTabs" class="filter-buttons view-tabs"><button type="button" data-deck-view="current">ТЕКУЩАЯ СДАЧА</button><button type="button" data-deck-view="starter">СТАРТОВАЯ</button><button type="button" data-deck-view="collection">ВСЕ 30 КАРТ</button></div></section>
-          <div class="deck-sidebar-controls">
-            <section><h3>ПОИСК</h3><input id="deckSearch" class="deck-search" type="search" placeholder="Название, эффект, лор или тег" autocomplete="off"></section>
-            <section><h3>СОРТИРОВКА</h3><select id="deckSort" class="deck-select"><option value="name">По названию</option><option value="cost">По стоимости</option><option value="rarity">По редкости</option><option value="type">По типу</option></select></section>
-          </div>
+          <div class="deck-sidebar-controls"><section><h3>ПОИСК</h3><input id="deckSearch" class="deck-search" type="search" placeholder="Название, эффект, лор или тег" autocomplete="off"></section><section><h3>СОРТИРОВКА</h3><select id="deckSort" class="deck-select"><option value="name">По названию</option><option value="cost">По стоимости</option><option value="rarity">По редкости</option><option value="type">По типу</option></select></section></div>
           <section><h3>ТИП</h3><div id="deckTypeFilters" class="filter-buttons"><button type="button" data-filter-type="all">ВСЕ</button><button type="button" data-filter-type="attack">АТАКА</button><button type="button" data-filter-type="defense">ЗАЩИТА</button><button type="button" data-filter-type="skill">ПРИЁМ</button><button type="button" data-filter-type="power">СИЛА</button><button type="button" data-filter-type="curse">ПРОКЛЯТИЕ</button></div></section>
           <section><h3>РЕДКОСТЬ</h3><div id="deckRarityFilters" class="filter-buttons"><button type="button" data-filter-rarity="all">ВСЕ</button><button type="button" data-filter-rarity="common">ОБЫЧНАЯ</button><button type="button" data-filter-rarity="uncommon">НЕОБЫЧНАЯ</button><button type="button" data-filter-rarity="rare">РЕДКАЯ</button><button type="button" data-filter-rarity="epic">ЭПИЧЕСКАЯ</button><button type="button" data-filter-rarity="legendary">ЛЕГЕНДАРНАЯ</button><button type="button" data-filter-rarity="curse">ПРОКЛЯТИЕ</button></div></section>
           <section><label class="upgrade-switch"><input id="deckUpgradeAll" type="checkbox"><span>ПОКАЗЫВАТЬ УЛУЧШЕННЫЕ ВЕРСИИ</span></label></section>
           <p id="deckViewCount" class="deck-view-count">Текущая: 10</p>
         </aside>
-
-        <main class="deck-browser">
-          <header class="deck-browser-toolbar"><span>РЕЗУЛЬТАТ ФИЛЬТРА</span><strong id="deckResultCount">0 КАРТ</strong></header>
-          <div class="deck-grid-wrap"><div id="deckGrid" class="deck-grid"></div><p id="deckEmpty" class="deck-empty" hidden>Ничего не найдено. Сбрось фильтры или попробуй другое слово.</p></div>
-        </main>
-
+        <main class="deck-browser"><header class="deck-browser-toolbar"><span>РЕЗУЛЬТАТ ФИЛЬТРА</span><strong id="deckResultCount">0 КАРТ</strong></header><div class="deck-grid-wrap"><div id="deckGrid" class="deck-grid"></div><p id="deckEmpty" class="deck-empty" hidden>Ничего не найдено. Сбрось фильтры или попробуй другое слово.</p></div></main>
         <aside id="deckDetail" class="deck-detail" aria-label="Подробности карты"><button id="deckDetailClose" class="deck-detail-close" type="button">← К КАРТАМ</button><p class="deck-detail-empty">Выбери карту.</p></aside>
       </div>
-
       <footer class="deck-screen-footer"><span>ПК: наведи курсор для подробностей</span><span>Телефон: нажми на карту, чтобы открыть её полностью</span><span>Фильтр текста не меняет механику</span></footer>
     </section>
   </div>
 
-  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Разыгрывай карты, пока хватает энергии. Новая сдача собирает стартовую колоду из 10 разных карт общего каталога из 30.</p><p><b>Щит</b> принимает урон первым и исчезает в начале твоего следующего хода. Карты могут лечить, красть, ломать, блокировать, сжигать, очищать эффекты и возвращаться из сброса.</p><p>Кнопка <b>▥</b> открывает «Мою колоду»: там доступны поиск, фильтры, улучшения, полный лор и безопасный режим текста.</p><p>Режим времени и наказание выбираются перед новой сдачей. На скрытой вкладке и в меню колоды таймер ставится на паузу.</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
+  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Перед новой сдачей выбери одного из семи дилеров. У каждого собственные здоровье, энергия, колода, способность и стиль ИИ.</p><p>Разыгрывай карты, пока хватает энергии. <b>Щит</b> принимает урон первым и исчезает в начале следующего хода владельца.</p><p>Кнопка <b>▥</b> открывает «Мою колоду»: там доступны поиск, фильтры, улучшения, полный лор и безопасный режим текста.</p><p>Режим времени и наказание выбираются перед новой сдачей. На скрытой вкладке и в меню колоды таймер ставится на паузу.</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
 
-  <div class="result-overlay" id="resultOverlay" hidden><div class="result-card"><span id="resultEyebrow">БОЙ ОКОНЧЕН</span><h2 id="resultTitle">ПОБЕДА</h2><p id="resultText"></p><button id="resultRestart" type="button">СДАТЬ ЗАНОВО В ЭТОМ РЕЖИМЕ</button><button id="resultSettings" class="secondary-result" type="button">ИЗМЕНИТЬ РЕЖИМ</button><a href="legacy.html">Вернуться в старый забег</a></div></div>
+  <div class="result-overlay" id="resultOverlay" hidden><div class="result-card"><span id="resultEyebrow">БОЙ ОКОНЧЕН</span><h2 id="resultTitle">ПОБЕДА</h2><p id="resultText"></p><button id="resultRestart" type="button">СДАТЬ ЗАНОВО В ЭТОМ РЕЖИМЕ</button><button id="resultSettings" class="secondary-result" type="button">СМЕНИТЬ ДИЛЕРА И РЕЖИМ</button><a href="legacy.html">Вернуться в старый забег</a></div></div>
 
   <script src="compatibility-runtime.js?v=4"></script>
   <script src="src/core/timer-settings.js?v=7"></script>
@@ -105,13 +95,17 @@
   <script src="src/data/card-catalog.js?v=9"></script>
   <script src="src/core/content-settings.js?v=9"></script>
   <script src="src/core/deck-view-model.js?v=9"></script>
+  <script src="src/data/dealer-catalog.js?v=10"></script>
   <script src="src/data/stage4-assets.js?v=8"></script>
   <script src="src/data/stage2-cards.js?v=9"></script>
   <script src="src/core/stage4-battle-engine.js?v=8"></script>
   <script src="src/core/stage4-runtime.js?v=8"></script>
-  <script src="src/ui/stage3-app.js?v=8"></script>
+  <script src="src/core/stage6-battle-runtime.js?v=10"></script>
+  <script src="src/core/dealer-ai.js?v=10"></script>
+  <script src="src/ui/stage6-app-loader.js?v=10"></script>
   <script src="src/ui/stage4-runtime.js?v=8"></script>
   <script src="src/ui/stage5-deck.js?v=9"></script>
+  <script src="src/ui/stage6-dealers.js?v=10"></script>
   <script src="src/ui/stage3-initial-save-guard.js?v=8"></script>
 </body>
 </html>
