@@ -30,7 +30,8 @@
     const node = inputState && inputState.map && inputState.map.nodes && inputState.map.nodes.find((item) => item.id === inputState.currentNodeId);
     const state = Base.completeBattle(inputState, result, catalog);
     if (result && result.winner === "player" && node && node.type !== "boss") {
-      const targetGold = node.type === "elite" ? PRICES.eliteReward : PRICES.commonReward;
+      const artifactBonus = typeof Base.artifactValue === "function" ? Number(Base.artifactValue(inputState, "battleGold") || 0) : 0;
+      const targetGold = (node.type === "elite" ? PRICES.eliteReward : PRICES.commonReward) + artifactBonus;
       const event = state.history.slice().reverse().find((entry) => entry.type === "BATTLE_WON" && entry.payload && entry.payload.nodeId === node.id);
       const awarded = Number(event && event.payload.gold || state.pending && state.pending.gold || 0);
       const delta = targetGold - awarded;
