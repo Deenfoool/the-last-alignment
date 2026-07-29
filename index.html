@@ -8,6 +8,7 @@
   <title>Битая масть — первый акт</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles/stage7.css?v=11">
+  <link rel="stylesheet" href="styles/stage8.css?v=12">
 </head>
 <body>
   <div id="app" class="game-shell" aria-live="polite">
@@ -19,6 +20,7 @@
         <button id="deckButton" class="icon-button" type="button" title="Моя колода">▥</button>
         <button id="helpButton" class="icon-button" type="button" title="Правила">?</button>
         <button id="settingsButton" class="icon-button" type="button" title="Режим времени и дилер">⚙</button>
+        <button id="systemButton" class="icon-button" type="button" title="Система, сохранения и диагностика">🛠</button>
         <a class="icon-button" href="legacy.html" title="Старый прототип">↩</a>
         <button id="restartButton" class="icon-button" type="button" title="Новая сдача">⟳</button>
       </nav>
@@ -85,12 +87,16 @@
   </div>
 
   <div id="actOverlay" class="act-overlay" hidden></div>
+  <div id="systemOverlay" class="system-overlay" hidden></div>
 
-  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Первый акт состоит из восьми слоёв. Выбирай узлы маршрута, побеждай обычных и элитных дилеров, посещай события, торговцев, комнаты отдыха и тайники.</p><p>Здоровье, деньги, карты, улучшения и артефакты сохраняются между узлами. Поражение завершает забег.</p><p>После победы выбери карту. В комнате отдыха можно лечиться или улучшать карту, а торговец продаёт карты, лечение, артефакты и удаление карты.</p><p>Финальный противник — Хозяин стола. Победа над ним завершает первый акт.</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
+  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Первый акт состоит из восьми слоёв. Выбирай узлы маршрута, побеждай обычных и элитных дилеров, посещай события, торговцев, комнаты отдыха и тайники.</p><p>Здоровье, деньги, карты, улучшения и артефакты сохраняются между узлами. Поражение завершает забег.</p><p>После победы выбери карту. В комнате отдыха можно лечиться или улучшать карту, а торговец продаёт карты, лечение, артефакты и удаление карты.</p><p>Финальный противник — Хозяин стола. Победа над ним завершает первый акт.</p><p>Кнопка <b>🛠</b> открывает диагностику, резервные копии и управление обновлениями.</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
 
   <div class="result-overlay" id="resultOverlay" hidden><div class="result-card"><span id="resultEyebrow">БОЙ ОКОНЧЕН</span><h2 id="resultTitle">ПОБЕДА</h2><p id="resultText"></p><button id="resultRestart" type="button">СДАТЬ ЗАНОВО В ЭТОМ РЕЖИМЕ</button><button id="resultSettings" class="secondary-result" type="button">СМЕНИТЬ ДИЛЕРА И РЕЖИМ</button><a href="legacy.html">Вернуться в старый забег</a></div></div>
 
   <script src="compatibility-runtime.js?v=4"></script>
+  <script src="src/core/storage-vault.js?v=12"></script>
+  <script src="src/core/stage8-compat.js?v=12"></script>
+  <script src="src/core/pwa-manager.js?v=12"></script>
   <script src="src/core/timer-settings.js?v=7"></script>
   <script src="src/data/stage2-assets-scene.js?v=6"></script>
   <script src="src/data/stage2-assets-a.js?v=6"></script>
@@ -115,5 +121,6 @@
   <script src="src/ui/stage6-dealers.js?v=10"></script>
   <script src="src/ui/stage3-initial-save-guard.js?v=8"></script>
   <script src="src/ui/stage7-act.js?v=11"></script>
+  <script src="src/ui/stage8-system.js?v=12"></script>
 </body>
 </html>
