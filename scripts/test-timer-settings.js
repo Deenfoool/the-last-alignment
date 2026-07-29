@@ -23,7 +23,7 @@ function config(extraPlayer) {
     battleId: "timer-test",
     seed: 90210,
     cards,
-    rules: { handSize: 5, maxHandSize: 10, shieldResetsEachTurn: true },
+    rules: { handSize: 5, maxHandSize: 10, shieldResetsEachTurn: false },
     player: Object.assign({ name: "Игрок", maxHp: 20, maxEnergy: 3, deck: ["ace_clubs", "cleaning_card", "bank_card", "troika_pass", "brick", "red_pill"] }, extraPlayer || {}),
     dealer: { name: "Шулер", maxHp: 20, maxEnergy: 3, deck: ["headshot", "ace_clubs", "brick", "bank_card", "cleaning_card", "marked_card"] },
   };
