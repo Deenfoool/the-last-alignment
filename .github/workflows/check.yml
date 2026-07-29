@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/stage-3-timer-settings
+      - feature/stage-4-card-system-30-copy
   pull_request:
 
 permissions:
@@ -37,17 +37,24 @@ jobs:
           node --check src/core/battle-engine.js
           node --check src/core/timed-battle-engine.js
           node --check src/core/timer-settings.js
-          node --check src/core/sample-cards.js
+          node --check src/core/stage4-battle-engine.js
+          node --check src/core/stage4-runtime.js
+          node --check src/data/card-catalog.js
           node --check src/data/stage2-cards.js
+          node --check src/data/stage4-assets.js
           node --check src/data/stage2-assets-scene.js
           node --check src/data/stage2-assets-a.js
           node --check src/data/stage2-assets-b.js
           node --check src/ui/stage2-app.js
           node --check src/ui/stage3-app.js
+          node --check src/ui/stage4-runtime.js
           node --check src/ui/stage3-initial-save-guard.js
           node --check scripts/test-battle-engine.js
           node --check scripts/test-stage2-battle.js
           node --check scripts/test-timer-settings.js
+          node --check scripts/test-stage4-engine.js
+          node --check scripts/validate-card-catalog.js
+          node --check scripts/simulate-card-catalog.js
           node --check sw.js
 
       - name: Validate legacy game data
@@ -55,35 +62,37 @@ jobs:
           cd /tmp/the-last-alignment-source
           node scripts/validate-data.js
 
-      - name: Test deterministic battle engine
-        run: node scripts/test-battle-engine.js
+      - name: Test earlier battle stages
+        run: |
+          node scripts/test-battle-engine.js
+          node scripts/test-stage2-battle.js
+          node scripts/test-timer-settings.js
 
-      - name: Smoke-test vertical slice
-        run: node scripts/test-stage2-battle.js
+      - name: Validate the 30-card catalog
+        run: node scripts/validate-card-catalog.js
 
-      - name: Test timer presets and timeout commands
-        run: node scripts/test-timer-settings.js
+      - name: Test upgraded card engine and migrations
+        run: node scripts/test-stage4-engine.js
 
-      - name: Check stage 3 files and PWA cache
+      - name: Simulate catalog battles
+        run: node scripts/simulate-card-catalog.js
+
+      - name: Check stage 4 files and PWA cache
         run: |
           test -s index.html
           test -s legacy.html
-          test -s styles/stage2.css
-          test -s styles/stage3.css
-          test -s src/core/timed-battle-engine.js
-          test -s src/core/timer-settings.js
-          test -s src/ui/stage3-app.js
-          test -s src/ui/stage3-initial-save-guard.js
-          test -s scripts/test-timer-settings.js
-          grep -q 'ПРАВИЛА СДАЧИ' index.html
-          grep -q 'timerMode' index.html
-          grep -q 'timerPenalty' index.html
-          grep -q 'timed-battle-engine.js' index.html
-          grep -q 'timer-settings.js' index.html
-          grep -q 'stage3-app.js' index.html
-          grep -q 'stage3-initial-save-guard.js' index.html
-          grep -q 'bitaya-mast-v7-timer-modes' sw.js
-          grep -q 'src/core/timed-battle-engine.js' sw.js
-          grep -q 'src/ui/stage3-app.js' sw.js
-          grep -q 'data:image/webp;base64' src/data/stage2-assets-scene.js
+          test -s styles/stage4.css
+          test -s src/core/stage4-battle-engine.js
+          test -s src/core/stage4-runtime.js
+          test -s src/data/card-catalog.js
+          test -s src/data/stage4-assets.js
+          test -s src/ui/stage4-runtime.js
+          test -s docs/CARD_CATALOG.md
+          grep -q '30 КАРТ' index.html
+          grep -q 'card-catalog.js' index.html
+          grep -q 'stage4-battle-engine.js' index.html
+          grep -q 'stage4-runtime.js' index.html
+          grep -q 'bitaya-mast-v8-card-catalog' sw.js
+          grep -q 'src/data/card-catalog.js' sw.js
+          grep -q 'src/core/stage4-battle-engine.js' sw.js
           grep -q 'BUNDLE_HASH' legacy.html
