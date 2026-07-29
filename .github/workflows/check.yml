@@ -1,50 +1,49 @@
-name: Apply v0.2 upgrade
+name: Static checks
 
 on:
   push:
     branches:
+      - main
       - feature/playable-prototype
+  pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  upgrade:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
+          node-version: 22
 
-      - name: Unpack tested build
+      - name: Unpack verified source bundle
+        run: python scripts/unpack-bundle.py /tmp/the-last-alignment-source
+
+      - name: Check JavaScript syntax
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import base64, hashlib, io, shutil, tarfile
+          node --check /tmp/the-last-alignment-source/data.js
+          node --check /tmp/the-last-alignment-source/game.js
+          node --check /tmp/the-last-alignment-source/sw.js
+          node --check /tmp/the-last-alignment-source/scripts/validate-data.js
 
-          parts = sorted(Path('.upgrade').glob('part*.txt'))
-          payload = ''.join(part.read_text(encoding='utf-8') for part in parts)
-          archive = base64.b64decode(payload)
-          expected = 'c91fb6c1dccd4aec9c07ccd77ea43e076dd7beea13abfcb6debf8338a5a38313'
-          actual = hashlib.sha256(archive).hexdigest()
-          if actual != expected:
-              raise SystemExit(f'Archive checksum mismatch: {actual}')
-          with tarfile.open(fileobj=io.BytesIO(archive), mode='r:gz') as bundle:
-              bundle.extractall('.', filter='data')
-          shutil.rmtree('.upgrade')
-          PY
-
-          node --check data.js
-          node --check game.js
-          node --check sw.js
-          node --check scripts/validate-data.js
+      - name: Validate game data
+        run: |
+          cd /tmp/the-last-alignment-source
           node scripts/validate-data.js
 
-      - name: Commit playable v0.2
+      - name: Check runtime files
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "feat: expand roguelike into a two-act run"
-          git push origin HEAD:feature/playable-prototype
+          test -f index.html
+          test -f manifest.webmanifest
+          test -f sw.js
+          test -f .upgrade/part00.txt
+          test -f .upgrade/part06.txt
+          grep -q 'BUNDLE_HASH' index.html
+          grep -q 'DecompressionStream' index.html
+          grep -q 'the-last-alignment-v2-bundle' sw.js
