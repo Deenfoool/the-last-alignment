@@ -8,24 +8,11 @@
   const TYPES = Object.freeze(["attack", "defense", "skill", "power", "curse"]);
   const RARITIES = Object.freeze(["common", "uncommon", "rare", "epic", "legendary", "curse"]);
   const NEGATIVE_STATUSES = Object.freeze(["weak", "vulnerable", "burn"]);
-
   function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
-  function deepFreeze(value) {
-    if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
-    Object.freeze(value);
-    Object.values(value).forEach(deepFreeze);
-    return value;
-  }
-  function text(adultShort, adultLore, safeShort, safeLore) {
-    return { adult: { short: adultShort, lore: adultLore }, safe: { short: safeShort, lore: safeLore } };
-  }
-  function upgrade(cost, stat, effects, adultShort, safeShort, extra) {
-    return Object.assign({ cost, stat, effects, text: { adult: { short: adultShort }, safe: { short: safeShort } } }, extra || {});
-  }
-  function art(key, symbol, background, accent, detail) {
-    return { key, symbol, palette: { background, accent, detail: detail || "#d8c6a2" } };
-  }
-
+  function deepFreeze(value) { if (!value || typeof value !== "object" || Object.isFrozen(value)) return value; Object.freeze(value); Object.values(value).forEach(deepFreeze); return value; }
+  function text(adultShort, adultLore, safeShort, safeLore) { return { adult: { short: adultShort, lore: adultLore }, safe: { short: safeShort, lore: safeLore } }; }
+  function upgrade(cost, stat, effects, adultShort, safeShort, extra) { return Object.assign({ cost, stat, effects, text: { adult: { short: adultShort }, safe: { short: safeShort } } }, extra || {}); }
+  function art(key, symbol, background, accent, detail) { return { key, symbol, palette: { background, accent, detail: detail || "#d8c6a2" } }; }
   const RAW_CARDS = [
     { id: "troika_pass", name: "Тройка", type: "skill", rarity: "uncommon", cost: 1, target: "self", art: art("troika", "М", "#102a3a", "#65b6dc"), icon: "⚡", stat: "+1", text: text("+1 энергия и 1 карта.", "Поезд ушёл, а ход остался.", "+1 молния и ещё одна карточка.", "Волшебный билет помогает успеть на следующий ход."), effects: [{ op: "energy", amount: 1, target: "self" }, { op: "draw", amount: 1, target: "self" }], tags: ["transport", "tempo", "energy", "draw"], upgrade: upgrade(0, "+1", [{ op: "energy", amount: 1, target: "self" }, { op: "draw", amount: 1, target: "self" }], "+1 энергия и 1 карта. Стоит 0.", "+1 молния и карточка бесплатно.") },
     { id: "cleaning_card", name: "Визитка клининга", type: "skill", rarity: "common", cost: 1, target: "self", art: art("cleaning", "✚", "#d2c6a8", "#315f72"), icon: "✚", stat: "4", text: text("4 щита и 2 лечения.", "Отмоют всё. Вопросы задавать не будут.", "4 защиты и 2 здоровья.", "Добрые уборщики аккуратно приводят всё в порядок."), effects: [{ op: "shield", amount: 4, target: "self" }, { op: "heal", amount: 2, target: "self" }], tags: ["service", "shield", "heal"], upgrade: upgrade(1, "7", [{ op: "shield", amount: 7, target: "self" }, { op: "heal", amount: 3, target: "self" }], "7 щита и 3 лечения.", "7 защиты и 3 здоровья.") },
@@ -58,125 +45,22 @@
     { id: "fire_extinguisher", name: "Огнетушитель", type: "defense", rarity: "uncommon", cost: 1, target: "self", art: art("extinguisher", "!", "#441817", "#d64034"), icon: "⬟", stat: "7", text: text("7 щита. Снимает ожог.", "Инструкция: выдернуть чеку, направить на последствия своих решений.", "7 защиты и убирает ожог.", "Огнетушитель защищает и тушит неприятный огонь."), effects: [{ op: "shield", amount: 7, target: "self" }, { op: "cleanse", amount: 1, statuses: ["burn"], target: "self" }], tags: ["service", "shield", "cleanse", "junk"], upgrade: upgrade(1, "10", [{ op: "shield", amount: 10, target: "self" }, { op: "cleanse", amount: 3, statuses: NEGATIVE_STATUSES, target: "self" }], "10 щита. Снимает до 3 негативов.", "10 защиты и убирает до трёх неприятностей.") },
     { id: "insurance_policy", name: "Страховка", type: "power", rarity: "rare", cost: 2, target: "self", art: art("insurance", "+", "#1d3040", "#69a2c4"), icon: "✚", stat: "6", text: text("6 щита. Регенерация 1 на 5 ходов.", "Покрывает всё, кроме именно твоего случая.", "6 защиты и по 1 лечению пять ходов.", "Полис помогает защищаться и понемногу восстанавливаться."), effects: [{ op: "shield", amount: 6, target: "self" }, { op: "status", statusId: "regeneration", stacks: 1, duration: 5, timing: "turn_start", target: "self" }], tags: ["finance", "shield", "regeneration", "power"], upgrade: upgrade(1, "8", [{ op: "shield", amount: 8, target: "self" }, { op: "status", statusId: "regeneration", stacks: 2, duration: 5, timing: "turn_start", target: "self" }], "8 щита. Регенерация 2 на 5 ходов. Стоит 1.", "8 защиты и по 2 лечения пять ходов за 1 энергию.") }
   ];
-
-  function normalizeCard(raw) {
-    const card = clone(raw);
-    card.short = card.text.adult.short;
-    card.lore = card.text.adult.lore;
-    card.artKey = card.art.key;
-    if (card.upgrade) {
-      card.upgrade.target = card.upgrade.target || card.target;
-      card.upgrade.exhaust = card.upgrade.exhaust == null ? Boolean(card.exhaust) : Boolean(card.upgrade.exhaust);
-      card.upgrade.tags = card.upgrade.tags || card.tags;
-    }
-    return deepFreeze(card);
-  }
+  function normalizeCard(raw) { const card = clone(raw); card.short = card.text.adult.short; card.lore = card.text.adult.lore; card.artKey = card.art.key; if (card.upgrade) { card.upgrade.target = card.upgrade.target || card.target; card.upgrade.exhaust = card.upgrade.exhaust == null ? Boolean(card.exhaust) : Boolean(card.upgrade.exhaust); card.upgrade.tags = card.upgrade.tags || card.tags; } return deepFreeze(card); }
   const cards = deepFreeze(RAW_CARDS.map(normalizeCard));
   const byId = Object.freeze(Object.fromEntries(cards.map((card) => [card.id, card])));
-  function engineCard(card) {
-    return deepFreeze({ id: card.id, name: card.name, type: card.type, rarity: card.rarity, cost: card.cost, target: card.target, exhaust: Boolean(card.exhaust), effects: clone(card.effects), tags: clone(card.tags), upgrade: clone(card.upgrade), art: card.art.key, stat: card.stat, short: card.text.adult.short, lore: card.text.adult.lore, text: clone(card.text) });
-  }
+  function engineCard(card) { return deepFreeze({ id: card.id, name: card.name, type: card.type, rarity: card.rarity, cost: card.cost, target: card.target, exhaust: Boolean(card.exhaust), effects: clone(card.effects), tags: clone(card.tags), upgrade: clone(card.upgrade), art: card.art.key, stat: card.stat, short: card.text.adult.short, lore: card.text.adult.lore, text: clone(card.text) }); }
   const engineCards = deepFreeze(cards.map(engineCard));
-
-  function getCard(id, options) {
-    const base = byId[id];
-    if (!base) return null;
-    const safe = Boolean(options && options.safe);
-    const upgraded = Number(options && options.upgrade) > 0 && base.upgrade;
-    const mode = safe ? "safe" : "adult";
-    const view = clone(base);
-    view.short = base.text[mode].short;
-    view.lore = base.text[mode].lore;
-    if (upgraded) {
-      const patch = base.upgrade;
-      view.name = `${base.name}+`;
-      view.cost = patch.cost == null ? base.cost : patch.cost;
-      view.stat = patch.stat == null ? base.stat : patch.stat;
-      view.effects = clone(patch.effects || base.effects);
-      view.target = patch.target || base.target;
-      view.exhaust = patch.exhaust == null ? Boolean(base.exhaust) : Boolean(patch.exhaust);
-      view.tags = clone(patch.tags || base.tags);
-      view.short = patch.text && patch.text[mode] && patch.text[mode].short ? patch.text[mode].short : view.short;
-    }
-    return view;
-  }
-
-  function hashSeed(value) {
-    const source = String(value == null ? 1 : value);
-    let hash = 2166136261;
-    for (let index = 0; index < source.length; index += 1) { hash ^= source.charCodeAt(index); hash = Math.imul(hash, 16777619); }
-    return hash >>> 0 || 1;
-  }
-  function rng(seed) {
-    let value = hashSeed(seed);
-    return function () { value ^= value << 13; value ^= value >>> 17; value ^= value << 5; return (value >>> 0) / 4294967296; };
-  }
-  function shuffled(list, seed) {
-    const output = list.slice();
-    const random = rng(seed);
-    for (let index = output.length - 1; index > 0; index -= 1) { const target = Math.floor(random() * (index + 1)); [output[index], output[target]] = [output[target], output[index]]; }
-    return output;
-  }
-  function take(pool, amount, seed, selected) {
-    return shuffled(pool.filter((card) => !selected.has(card.id)), seed).slice(0, amount).map((card) => { selected.add(card.id); return card.id; });
-  }
-  function buildDeck(side, seed) {
-    const selected = new Set();
-    const nonCurse = cards.filter((card) => card.type !== "curse");
-    const groups = { attack: nonCurse.filter((card) => card.type === "attack"), defense: nonCurse.filter((card) => card.type === "defense"), skill: nonCurse.filter((card) => card.type === "skill"), power: nonCurse.filter((card) => card.type === "power"), curse: cards.filter((card) => card.type === "curse") };
-    const plan = side === "dealer" ? [["attack", 4], ["defense", 1], ["skill", 3], ["power", 1], ["curse", 1]] : [["attack", 3], ["defense", 2], ["skill", 3], ["power", 1], ["curse", 1]];
-    const result = [];
-    plan.forEach(([type, amount], index) => result.push(...take(groups[type], amount, `${seed}:${side}:${type}:${index}`, selected)));
-    if (result.length < 10) result.push(...take(cards, 10 - result.length, `${seed}:${side}:fill`, selected));
-    return shuffled(result, `${seed}:${side}:final`).slice(0, 10);
-  }
-  function decorateBattleConfig(input) {
-    const config = clone(input || {});
-    const battleSeed = config.seed == null ? 1 : config.seed;
-    config.cards = engineCards;
-    config.player = Object.assign({}, config.player || {}, { deck: buildDeck("player", battleSeed) });
-    config.dealer = Object.assign({}, config.dealer || {}, { deck: buildDeck("dealer", `${battleSeed}:dealer`) });
-    config.rules = Object.assign({}, config.rules || {}, { catalogVersion: DATA_VERSION });
-    return config;
-  }
+  function getCard(id, options) { const base = byId[id]; if (!base) return null; const safe = Boolean(options && options.safe); const upgraded = Number(options && options.upgrade) > 0 && base.upgrade; const mode = safe ? "safe" : "adult"; const view = clone(base); view.short = base.text[mode].short; view.lore = base.text[mode].lore; if (upgraded) { const patch = base.upgrade; view.name = `${base.name}+`; view.cost = patch.cost == null ? base.cost : patch.cost; view.stat = patch.stat == null ? base.stat : patch.stat; view.effects = clone(patch.effects || base.effects); view.target = patch.target || base.target; view.exhaust = patch.exhaust == null ? Boolean(base.exhaust) : Boolean(patch.exhaust); view.tags = clone(patch.tags || base.tags); view.short = patch.text && patch.text[mode] && patch.text[mode].short ? patch.text[mode].short : view.short; } return view; }
+  function hashSeed(value) { const source = String(value == null ? 1 : value); let hash = 2166136261; for (let index = 0; index < source.length; index += 1) { hash ^= source.charCodeAt(index); hash = Math.imul(hash, 16777619); } return hash >>> 0 || 1; }
+  function rng(seed) { let value = hashSeed(seed); return function () { value ^= value << 13; value ^= value >>> 17; value ^= value << 5; return (value >>> 0) / 4294967296; }; }
+  function shuffled(list, seed) { const output = list.slice(); const random = rng(seed); for (let index = output.length - 1; index > 0; index -= 1) { const target = Math.floor(random() * (index + 1)); [output[index], output[target]] = [output[target], output[index]]; } return output; }
+  function take(pool, amount, seed, selected) { return shuffled(pool.filter((card) => !selected.has(card.id)), seed).slice(0, amount).map((card) => { selected.add(card.id); return card.id; }); }
+  function buildDeck(side, seed) { const selected = new Set(); const nonCurse = cards.filter((card) => card.type !== "curse"); const groups = { attack: nonCurse.filter((card) => card.type === "attack"), defense: nonCurse.filter((card) => card.type === "defense"), skill: nonCurse.filter((card) => card.type === "skill"), power: nonCurse.filter((card) => card.type === "power"), curse: cards.filter((card) => card.type === "curse") }; const plan = side === "dealer" ? [["attack", 4], ["defense", 1], ["skill", 3], ["power", 1], ["curse", 1]] : [["attack", 3], ["defense", 2], ["skill", 3], ["power", 1], ["curse", 1]]; const result = []; plan.forEach(([type, amount], index) => result.push(...take(groups[type], amount, `${seed}:${side}:${type}:${index}`, selected))); if (result.length < 10) result.push(...take(cards, 10 - result.length, `${seed}:${side}:fill`, selected)); return shuffled(result, `${seed}:${side}:final`).slice(0, 10); }
+  function decorateBattleConfig(input) { const config = clone(input || {}); const battleSeed = config.seed == null ? 1 : config.seed; config.cards = engineCards; config.player = Object.assign({}, config.player || {}, { deck: buildDeck("player", battleSeed) }); config.dealer = Object.assign({}, config.dealer || {}, { deck: buildDeck("dealer", `${battleSeed}:dealer`) }); config.rules = Object.assign({}, config.rules || {}, { catalogVersion: DATA_VERSION }); return config; }
   function escapeXml(value) { return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[character]); }
-  function artDataUri(cardOrId) {
-    const card = typeof cardOrId === "string" ? byId[cardOrId] : cardOrId;
-    if (!card) return "";
-    const palette = card.art.palette;
-    const random = rng(card.id);
-    const pixels = [];
-    for (let index = 0; index < 32; index += 1) {
-      const x = Math.floor(random() * 15) * 16;
-      const y = Math.floor(random() * 11) * 16;
-      const size = random() > .72 ? 16 : 8;
-      pixels.push(`<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="${index % 3 === 0 ? palette.accent : palette.detail}" opacity="${(.08 + random() * .18).toFixed(2)}"/>`);
-    }
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="176" viewBox="0 0 240 176" shape-rendering="crispEdges"><rect width="240" height="176" fill="${palette.background}"/><rect x="8" y="8" width="224" height="160" fill="none" stroke="${palette.accent}" stroke-width="4" opacity=".55"/>${pixels.join("")}<rect x="56" y="34" width="128" height="108" fill="#080706" opacity=".45"/><text x="120" y="108" text-anchor="middle" font-family="monospace" font-size="58" font-weight="900" fill="${palette.accent}" stroke="#080706" stroke-width="3" paint-order="stroke">${escapeXml(card.art.symbol)}</text><rect x="16" y="148" width="208" height="8" fill="${palette.accent}" opacity=".55"/></svg>`;
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-  }
-  function validateCatalog(input) {
-    const list = input || cards;
-    const errors = [];
-    const ids = new Set();
-    if (!Array.isArray(list)) errors.push("Каталог должен быть массивом.");
-    if (Array.isArray(list) && list.length !== 30) errors.push(`Ожидалось 30 карт, получено ${list.length}.`);
-    (Array.isArray(list) ? list : []).forEach((card, index) => {
-      const label = card && card.id ? card.id : `#${index}`;
-      if (!card || !card.id) errors.push(`${label}: отсутствует id.`); else if (ids.has(card.id)) errors.push(`${label}: повторяющийся id.`); else ids.add(card.id);
-      if (!TYPES.includes(card.type)) errors.push(`${label}: неизвестный тип ${card.type}.`);
-      if (!RARITIES.includes(card.rarity)) errors.push(`${label}: неизвестная редкость ${card.rarity}.`);
-      if (!Number.isInteger(card.cost) || card.cost < 0) errors.push(`${label}: некорректная стоимость.`);
-      if (!card.text || !card.text.adult || !card.text.safe || !card.text.adult.short || !card.text.safe.short || !card.text.adult.lore || !card.text.safe.lore) errors.push(`${label}: нет взрослого или безопасного текста.`);
-      if (!Array.isArray(card.effects) || !card.effects.length) errors.push(`${label}: нет эффектов.`);
-      if (!Array.isArray(card.tags) || card.tags.length < 2) errors.push(`${label}: нужны теги синергий.`);
-      if (!card.upgrade || !Array.isArray(card.upgrade.effects) || !card.upgrade.effects.length) errors.push(`${label}: нет улучшенной версии.`);
-      if (!card.art || !card.art.key || !card.art.symbol || !card.art.palette) errors.push(`${label}: нет иллюстрации.`);
-    });
-    ["common", "uncommon", "rare", "epic", "legendary"].forEach((rarity) => { if (!(Array.isArray(list) && list.some((card) => card.rarity === rarity))) errors.push(`Нет карт редкости ${rarity}.`); });
-    return { ok: errors.length === 0, errors };
-  }
+  function artDataUri(cardOrId) { const card = typeof cardOrId === "string" ? byId[cardOrId] : cardOrId; if (!card) return ""; const palette = card.art.palette; const random = rng(card.id); const pixels = []; for (let index = 0; index < 32; index += 1) { const x = Math.floor(random() * 15) * 16; const y = Math.floor(random() * 11) * 16; const size = random() > .72 ? 16 : 8; pixels.push(`<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="${index % 3 === 0 ? palette.accent : palette.detail}" opacity="${(.08 + random() * .18).toFixed(2)}"/>`); } const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="176" viewBox="0 0 240 176" shape-rendering="crispEdges"><rect width="240" height="176" fill="${palette.background}"/><rect x="8" y="8" width="224" height="160" fill="none" stroke="${palette.accent}" stroke-width="4" opacity=".55"/>${pixels.join("")}<rect x="56" y="34" width="128" height="108" fill="#080706" opacity=".45"/><text x="120" y="108" text-anchor="middle" font-family="monospace" font-size="58" font-weight="900" fill="${palette.accent}" stroke="#080706" stroke-width="3" paint-order="stroke">${escapeXml(card.art.symbol)}</text><rect x="16" y="148" width="208" height="8" fill="${palette.accent}" opacity=".55"/></svg>`; return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`; }
+  function validateCatalog(input) { const list = input || cards; const errors = []; const ids = new Set(); if (!Array.isArray(list)) errors.push("Каталог должен быть массивом."); if (Array.isArray(list) && list.length !== 30) errors.push(`Ожидалось 30 карт, получено ${list.length}.`); (Array.isArray(list) ? list : []).forEach((card, index) => { const label = card && card.id ? card.id : `#${index}`; if (!card || !card.id) errors.push(`${label}: отсутствует id.`); else if (ids.has(card.id)) errors.push(`${label}: повторяющийся id.`); else ids.add(card.id); if (!TYPES.includes(card.type)) errors.push(`${label}: неизвестный тип ${card.type}.`); if (!RARITIES.includes(card.rarity)) errors.push(`${label}: неизвестная редкость ${card.rarity}.`); if (!Number.isInteger(card.cost) || card.cost < 0) errors.push(`${label}: некорректная стоимость.`); if (!card.text || !card.text.adult || !card.text.safe || !card.text.adult.short || !card.text.safe.short || !card.text.adult.lore || !card.text.safe.lore) errors.push(`${label}: нет взрослого или безопасного текста.`); if (!Array.isArray(card.effects) || !card.effects.length) errors.push(`${label}: нет эффектов.`); if (!Array.isArray(card.tags) || card.tags.length < 2) errors.push(`${label}: нужны теги синергий.`); if (!card.upgrade || !Array.isArray(card.upgrade.effects) || !card.upgrade.effects.length) errors.push(`${label}: нет улучшенной версии.`); if (!card.art || !card.art.key || !card.art.symbol || !card.art.palette) errors.push(`${label}: нет иллюстрации.`); }); ["common", "uncommon", "rare", "epic", "legendary"].forEach((rarity) => { if (!(Array.isArray(list) && list.some((card) => card.rarity === rarity))) errors.push(`Нет карт редкости ${rarity}.`); }); return { ok: errors.length === 0, errors }; }
   const validation = validateCatalog(cards);
-  if (!validation.ok) throw new Error(`Некорректный каталог карт:\n${validation.errors.join("\n")}`);
+  if (!validation.ok) throw new Error(["Некорректный каталог карт:", ...validation.errors].join(String.fromCharCode(10)));
   return Object.freeze({ DATA_VERSION, TYPES, RARITIES, NEGATIVE_STATUSES, cards, byId, engineCards, getCard, buildDeck, decorateBattleConfig, artDataUri, validateCatalog });
 });
