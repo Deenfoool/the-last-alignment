@@ -66,6 +66,7 @@ jobs:
           node --check src/ui/stage6-dealers.js
           node --check src/ui/stage7-act.js
           node --check src/ui/stage8-system.js
+          node --check src/ui/stage8-system-extension.js
           node --check src/ui/stage3-initial-save-guard.js
           node --check scripts/test-battle-engine.js
           node --check scripts/test-stage2-battle.js
@@ -110,6 +111,7 @@ jobs:
           test -s src/core/stage8-compat.js
           test -s src/core/pwa-manager.js
           test -s src/ui/stage8-system.js
+          test -s src/ui/stage8-system-extension.js
           test -s docs/PWA_AND_RECOVERY.md
           test -s assets/pwa/icon.svg
           test -s assets/pwa/maskable.svg
@@ -119,6 +121,7 @@ jobs:
           grep -q 'stage8-compat.js' index.html
           grep -q 'pwa-manager.js' index.html
           grep -q 'stage8-system.js' index.html
+          grep -q 'stage8-system-extension.js' sw.js
           grep -q 'bitaya-mast-v12-resilient-pwa' sw.js
           grep -q 'SKIP_WAITING' sw.js
           grep -q 'GET_VERSION' sw.js
