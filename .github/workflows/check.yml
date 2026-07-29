@@ -6,6 +6,7 @@ on:
       - main
       - feature/playable-prototype
       - feature/visual-overhaul-v03
+      - fix/new-run-compatibility
   pull_request:
 
 permissions:
@@ -32,6 +33,7 @@ jobs:
           node --check /tmp/the-last-alignment-source/game.js
           node --check /tmp/the-last-alignment-source/sw.js
           node --check /tmp/the-last-alignment-source/scripts/validate-data.js
+          node --check compatibility-runtime.js
           node --check theme-enhancer.js
           node --check sw.js
 
@@ -45,6 +47,7 @@ jobs:
           test -f index.html
           test -f manifest.webmanifest
           test -f sw.js
+          test -f compatibility-runtime.js
           test -f theme-enhancer.css
           test -f theme-enhancer.js
           test -f .upgrade/part00.txt
@@ -54,7 +57,8 @@ jobs:
           done
           grep -q 'BUNDLE_HASH' index.html
           grep -q 'DecompressionStream' index.html
-          grep -q 'theme-enhancer.css' index.html
-          grep -q 'theme-enhancer.js' index.html
-          grep -q 'the-last-alignment-v3-visuals' sw.js
+          grep -q 'compatibility-runtime.js?v=4' index.html
+          grep -q 'theme-enhancer.css?v=4' index.html
+          grep -q 'theme-enhancer.js?v=4' index.html
+          grep -q 'the-last-alignment-v4-compatibility' sw.js
           grep -q 'assets/theme/deck.svg' theme-enhancer.css
