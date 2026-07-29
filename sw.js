@@ -1,8 +1,22 @@
 "use strict";
 
-const CACHE_NAME = "the-last-alignment-v2-bundle";
+const CACHE_NAME = "the-last-alignment-v3-visuals";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
-const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js", ...BUNDLE_PARTS];
+const THEME_ASSETS = [
+  "./theme-enhancer.css",
+  "./theme-enhancer.js",
+  "./assets/theme/deck.svg",
+  "./assets/theme/hero.svg",
+  "./assets/theme/enemy.svg",
+  "./assets/theme/icon-attack.svg",
+  "./assets/theme/icon-skill.svg",
+  "./assets/theme/icon-power.svg",
+  "./assets/theme/node-battle.svg",
+  "./assets/theme/node-event.svg",
+  "./assets/theme/node-rest.svg",
+  "./assets/theme/node-elite.svg"
+];
+const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js", ...BUNDLE_PARTS, ...THEME_ASSETS];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
