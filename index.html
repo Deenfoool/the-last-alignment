@@ -4,17 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0808">
-  <meta name="description" content="Битая масть — мрачная карточная дуэль с семью дилерами и коллекцией из 30 мемных карт.">
-  <title>Битая масть — дуэль</title>
+  <meta name="description" content="Битая масть — мрачный карточный roguelike с маршрутом, событиями, торговцами и семью дилерами.">
+  <title>Битая масть — первый акт</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles/stage6.css?v=10">
+  <link rel="stylesheet" href="styles/stage7.css?v=11">
 </head>
 <body>
   <div id="app" class="game-shell" aria-live="polite">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Битая масть"><span class="brand-mark">☠</span><span>БИТАЯ МАСТЬ</span><small>7 дилеров</small></a>
-      <span id="catalogBadge" class="catalog-badge">7 ДИЛЕРОВ</span>
+      <a class="brand" href="./" aria-label="Битая масть"><span class="brand-mark">☠</span><span>БИТАЯ МАСТЬ</span><small>акт I</small></a>
+      <span id="catalogBadge" class="catalog-badge">АКТ I</span>
       <nav class="top-actions" aria-label="Меню">
+        <button id="runButton" class="icon-button" type="button" title="Маршрут акта">⌁</button>
         <button id="deckButton" class="icon-button" type="button" title="Моя колода">▥</button>
         <button id="helpButton" class="icon-button" type="button" title="Правила">?</button>
         <button id="settingsButton" class="icon-button" type="button" title="Режим времени и дилер">⚙</button>
@@ -47,7 +48,7 @@
       </aside>
     </main>
 
-    <section class="hand-dock" aria-label="Рука игрока"><div class="hand" id="hand"></div><p class="hand-hint">У каждого дилера собственная колода, способность и стиль принятия решений</p></section>
+    <section class="hand-dock" aria-label="Рука игрока"><div class="hand" id="hand"></div><p class="hand-hint">Здоровье, колода и артефакты сохраняются между узлами первого акта</p></section>
   </div>
 
   <div id="setupOverlay" class="setup-overlay" hidden>
@@ -83,7 +84,9 @@
     </section>
   </div>
 
-  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Перед новой сдачей выбери одного из семи дилеров. У каждого собственные здоровье, энергия, колода, способность и стиль ИИ.</p><p>Разыгрывай карты, пока хватает энергии. <b>Щит</b> принимает урон первым и исчезает в начале следующего хода владельца.</p><p>Кнопка <b>▥</b> открывает «Мою колоду»: там доступны поиск, фильтры, улучшения, полный лор и безопасный режим текста.</p><p>Режим времени и наказание выбираются перед новой сдачей. На скрытой вкладке и в меню колоды таймер ставится на паузу.</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
+  <div id="actOverlay" class="act-overlay" hidden></div>
+
+  <dialog id="helpDialog" class="game-dialog"><button class="dialog-close" type="button" data-close-dialog>×</button><h2>КАК ИГРАТЬ</h2><p>Первый акт состоит из восьми слоёв. Выбирай узлы маршрута, побеждай обычных и элитных дилеров, посещай события, торговцев, комнаты отдыха и тайники.</p><p>Здоровье, деньги, карты, улучшения и артефакты сохраняются между узлами. Поражение завершает забег.</p><p>После победы выбери карту. В комнате отдыха можно лечиться или улучшать карту, а торговец продаёт карты, лечение, артефакты и удаление карты.</p><p>Финальный противник — Хозяин стола. Победа над ним завершает первый акт.</p><p>Клавиши <b>1–9</b> разыгрывают карты, <b>Пробел</b> завершает ход.</p></dialog>
 
   <div class="result-overlay" id="resultOverlay" hidden><div class="result-card"><span id="resultEyebrow">БОЙ ОКОНЧЕН</span><h2 id="resultTitle">ПОБЕДА</h2><p id="resultText"></p><button id="resultRestart" type="button">СДАТЬ ЗАНОВО В ЭТОМ РЕЖИМЕ</button><button id="resultSettings" class="secondary-result" type="button">СМЕНИТЬ ДИЛЕРА И РЕЖИМ</button><a href="legacy.html">Вернуться в старый забег</a></div></div>
 
@@ -96,16 +99,21 @@
   <script src="src/core/content-settings.js?v=9"></script>
   <script src="src/core/deck-view-model.js?v=9"></script>
   <script src="src/data/dealer-catalog.js?v=10"></script>
+  <script src="src/data/act1-content.js?v=11"></script>
+  <script src="src/core/run-profile.js?v=11"></script>
+  <script src="src/core/act-run-engine.js?v=11"></script>
   <script src="src/data/stage4-assets.js?v=8"></script>
   <script src="src/data/stage2-cards.js?v=9"></script>
   <script src="src/core/stage4-battle-engine.js?v=8"></script>
   <script src="src/core/stage4-runtime.js?v=8"></script>
   <script src="src/core/stage6-battle-runtime.js?v=10"></script>
+  <script src="src/core/stage7-battle-runtime.js?v=11"></script>
   <script src="src/core/dealer-ai.js?v=10"></script>
   <script src="src/ui/stage6-app-loader.js?v=10"></script>
   <script src="src/ui/stage4-runtime.js?v=8"></script>
   <script src="src/ui/stage5-deck.js?v=9"></script>
   <script src="src/ui/stage6-dealers.js?v=10"></script>
   <script src="src/ui/stage3-initial-save-guard.js?v=8"></script>
+  <script src="src/ui/stage7-act.js?v=11"></script>
 </body>
 </html>
