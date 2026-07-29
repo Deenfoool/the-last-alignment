@@ -1,0 +1,185 @@
+:root {
+  --tw-deck: url("assets/theme/deck.svg");
+  --tw-hero: url("assets/theme/hero.svg");
+  --tw-enemy: url("assets/theme/enemy.svg");
+  --tw-attack: url("assets/theme/icon-attack.svg");
+  --tw-skill: url("assets/theme/icon-skill.svg");
+  --tw-power: url("assets/theme/icon-power.svg");
+  --tw-node-battle: url("assets/theme/node-battle.svg");
+  --tw-node-event: url("assets/theme/node-event.svg");
+  --tw-node-rest: url("assets/theme/node-rest.svg");
+  --tw-node-elite: url("assets/theme/node-elite.svg");
+  --tw-ease: cubic-bezier(.22,.72,.18,1);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(89,125,211,.12), transparent 27%),
+    radial-gradient(circle at 78% 28%, rgba(202,111,65,.08), transparent 26%),
+    radial-gradient(circle at 50% 100%, rgba(111,66,157,.13), transparent 38%);
+}
+
+.tw-theme-ready .tw-card,
+.tw-theme-ready .tw-route-node,
+.tw-theme-ready .tw-card-pile,
+.tw-theme-ready .tw-portrait {
+  transition: transform .28s var(--tw-ease), box-shadow .28s var(--tw-ease), border-color .28s var(--tw-ease), opacity .28s var(--tw-ease);
+}
+
+.tw-theme-ready .tw-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-color: rgba(239,207,141,.24) !important;
+  background: linear-gradient(180deg, rgba(42,31,51,.96), rgba(20,17,27,.98)) !important;
+  box-shadow: 0 22px 42px rgba(0,0,0,.34), inset 0 1px rgba(255,255,255,.06), 0 0 0 1px rgba(240,207,141,.07);
+  backdrop-filter: blur(8px);
+}
+
+.tw-theme-ready .tw-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), transparent 24%),
+    radial-gradient(circle at 50% 0%, rgba(240,207,141,.12), transparent 38%);
+}
+
+.tw-theme-ready .tw-card::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 10%;
+  right: 10%;
+  top: 30%;
+  height: 38%;
+  border-radius: 16px;
+  pointer-events: none;
+  background-image: var(--tw-card-art, none);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: .94;
+  filter: drop-shadow(0 12px 18px rgba(0,0,0,.34));
+}
+
+.tw-theme-ready .tw-card > * { z-index: 1; }
+.tw-theme-ready .tw-card[data-card-kind="attack"] { --tw-card-art: var(--tw-attack); }
+.tw-theme-ready .tw-card[data-card-kind="skill"] { --tw-card-art: var(--tw-skill); }
+.tw-theme-ready .tw-card[data-card-kind="power"] { --tw-card-art: var(--tw-power); }
+.tw-theme-ready .tw-card[data-card-kind="curse"] { --tw-card-art: var(--tw-enemy); }
+
+.tw-theme-ready .tw-card:hover:not(:disabled) {
+  transform: translateY(-12px) scale(1.025);
+  border-color: rgba(240,207,141,.48) !important;
+  box-shadow: 0 30px 58px rgba(0,0,0,.46), 0 0 30px rgba(240,207,141,.16);
+}
+
+.tw-theme-ready .tw-deal-in { animation: twDealIn .42s var(--tw-ease) both; }
+.tw-theme-ready .tw-cast { animation: twCast .38s ease both; }
+@keyframes twDealIn { from { opacity:0; transform:translateY(32px) scale(.92) rotate(2deg); } to { opacity:1; transform:none; } }
+@keyframes twCast { 0% { transform:translateY(-8px) scale(1.03); } 55% { transform:translateY(-20px) scale(1.07); filter:brightness(1.2); } 100% { transform:none; filter:none; } }
+
+.tw-theme-ready .tw-card-pile {
+  position: relative;
+  overflow: visible !important;
+  min-width: 92px;
+  min-height: 128px;
+  padding-top: 86px !important;
+  background: linear-gradient(180deg, rgba(24,20,31,.82), rgba(13,11,18,.96)) !important;
+  border-color: rgba(239,207,141,.18) !important;
+}
+.tw-theme-ready .tw-card-pile::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  width: 118px;
+  height: 108px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: var(--tw-deck) center/contain no-repeat;
+  filter: drop-shadow(0 16px 18px rgba(0,0,0,.52));
+  pointer-events: none;
+  animation: twDeckBreath 2.8s ease-in-out infinite;
+}
+.tw-theme-ready .tw-card-pile[data-tw-pile="discard"]::before { filter: grayscale(.2) brightness(.72) drop-shadow(0 14px 18px rgba(0,0,0,.48)); transform:translateX(-50%) rotate(7deg); }
+@keyframes twDeckBreath { 0%,100% { translate:0 0; } 50% { translate:0 -3px; } }
+
+.tw-theme-ready .tw-portrait {
+  position: relative;
+  overflow: hidden !important;
+  isolation: isolate;
+  background: linear-gradient(180deg, rgba(14,12,20,.96), rgba(24,20,31,.9)) !important;
+}
+.tw-theme-ready .tw-portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: var(--tw-portrait-image);
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: cover;
+  opacity: .97;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,.45));
+}
+.tw-theme-ready .tw-portrait-hero { --tw-portrait-image: var(--tw-hero); }
+.tw-theme-ready .tw-portrait-enemy { --tw-portrait-image: var(--tw-enemy); }
+.tw-theme-ready .tw-hit { animation: twHit .42s ease; }
+@keyframes twHit { 0%,100% { transform:translateX(0); filter:none; } 25% { transform:translateX(-7px); filter:brightness(1.22); } 55% { transform:translateX(8px); filter:brightness(1.28); } 80% { transform:translateX(-3px); } }
+
+.tw-theme-ready .tw-route-node {
+  position: relative;
+  overflow: hidden;
+  min-height: 92px;
+  padding-top: 55px !important;
+  border-color: rgba(239,207,141,.18) !important;
+  background: linear-gradient(180deg, rgba(34,27,42,.86), rgba(18,15,25,.96)) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.05), 0 18px 34px rgba(0,0,0,.22);
+}
+.tw-theme-ready .tw-route-node::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 54px;
+  height: 54px;
+  transform: translateX(-50%);
+  background: var(--tw-node-image) center/contain no-repeat;
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,.4));
+  pointer-events: none;
+  animation: twNodeFloat 2.4s ease-in-out infinite;
+}
+.tw-theme-ready .tw-route-node[data-node-kind="battle"] { --tw-node-image: var(--tw-node-battle); }
+.tw-theme-ready .tw-route-node[data-node-kind="event"] { --tw-node-image: var(--tw-node-event); }
+.tw-theme-ready .tw-route-node[data-node-kind="rest"] { --tw-node-image: var(--tw-node-rest); }
+.tw-theme-ready .tw-route-node[data-node-kind="elite"],
+.tw-theme-ready .tw-route-node[data-node-kind="boss"] { --tw-node-image: var(--tw-node-elite); }
+.tw-theme-ready .tw-route-node[data-node-kind="shop"],
+.tw-theme-ready .tw-route-node[data-node-kind="treasure"] { --tw-node-image: var(--tw-power); }
+.tw-theme-ready .tw-route-node:hover:not(:disabled) { transform:translateY(-5px); border-color:rgba(239,207,141,.45)!important; box-shadow:0 24px 44px rgba(0,0,0,.35),0 0 28px rgba(239,207,141,.1); }
+@keyframes twNodeFloat { 0%,100% { transform:translateX(-50%) translateY(0); } 50% { transform:translateX(-50%) translateY(-3px); } }
+
+.tw-theme-ready .tw-end-turn { animation: twTurnPulse 2.8s ease-in-out infinite; }
+@keyframes twTurnPulse { 0%,100% { box-shadow:0 14px 26px rgba(212,170,97,.18), inset 0 1px rgba(255,255,255,.14); } 50% { box-shadow:0 20px 38px rgba(212,170,97,.32),0 0 26px rgba(212,170,97,.14),inset 0 1px rgba(255,255,255,.18); } }
+.tw-theme-ready .tw-low-health { animation: twHealthWarning 1.25s ease-in-out infinite; }
+@keyframes twHealthWarning { 0%,100% { box-shadow:0 0 0 0 rgba(199,84,84,0); } 50% { box-shadow:0 0 0 8px rgba(199,84,84,.16); } }
+
+@media (max-width: 760px) {
+  .tw-theme-ready .tw-card::after { top: 28%; height: 36%; }
+  .tw-theme-ready .tw-card-pile::before { width: 94px; height: 90px; }
+  .tw-theme-ready .tw-route-node { min-height: 82px; padding-top: 49px !important; }
+  .tw-theme-ready .tw-route-node::before { width: 46px; height: 46px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tw-theme-ready *, .tw-theme-ready *::before, .tw-theme-ready *::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+}

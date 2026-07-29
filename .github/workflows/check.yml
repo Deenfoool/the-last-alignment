@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/playable-prototype
+      - feature/visual-overhaul-v03
   pull_request:
 
 permissions:
@@ -31,19 +32,29 @@ jobs:
           node --check /tmp/the-last-alignment-source/game.js
           node --check /tmp/the-last-alignment-source/sw.js
           node --check /tmp/the-last-alignment-source/scripts/validate-data.js
+          node --check theme-enhancer.js
+          node --check sw.js
 
       - name: Validate game data
         run: |
           cd /tmp/the-last-alignment-source
           node scripts/validate-data.js
 
-      - name: Check runtime files
+      - name: Check runtime and illustrated theme
         run: |
           test -f index.html
           test -f manifest.webmanifest
           test -f sw.js
+          test -f theme-enhancer.css
+          test -f theme-enhancer.js
           test -f .upgrade/part00.txt
           test -f .upgrade/part06.txt
+          for asset in deck hero enemy icon-attack icon-skill icon-power node-battle node-event node-rest node-elite; do
+            test -s "assets/theme/${asset}.svg"
+          done
           grep -q 'BUNDLE_HASH' index.html
           grep -q 'DecompressionStream' index.html
-          grep -q 'the-last-alignment-v2-bundle' sw.js
+          grep -q 'theme-enhancer.css' index.html
+          grep -q 'theme-enhancer.js' index.html
+          grep -q 'the-last-alignment-v3-visuals' sw.js
+          grep -q 'assets/theme/deck.svg' theme-enhancer.css
