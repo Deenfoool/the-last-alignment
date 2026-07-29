@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/stage-4-card-system-30-copy
+      - feature/stage-5-deck-and-content-filter
   pull_request:
 
 permissions:
@@ -39,6 +39,8 @@ jobs:
           node --check src/core/timer-settings.js
           node --check src/core/stage4-battle-engine.js
           node --check src/core/stage4-runtime.js
+          node --check src/core/content-settings.js
+          node --check src/core/deck-view-model.js
           node --check src/data/card-catalog.js
           node --check src/data/stage2-cards.js
           node --check src/data/stage4-assets.js
@@ -48,6 +50,7 @@ jobs:
           node --check src/ui/stage2-app.js
           node --check src/ui/stage3-app.js
           node --check src/ui/stage4-runtime.js
+          node --check src/ui/stage5-deck.js
           node --check src/ui/stage3-initial-save-guard.js
           node --check scripts/test-battle-engine.js
           node --check scripts/test-stage2-battle.js
@@ -55,6 +58,7 @@ jobs:
           node --check scripts/test-stage4-engine.js
           node --check scripts/validate-card-catalog.js
           node --check scripts/simulate-card-catalog.js
+          node --check scripts/test-stage5-deck.js
           node --check sw.js
 
       - name: Validate legacy game data
@@ -77,22 +81,26 @@ jobs:
       - name: Simulate catalog battles
         run: node scripts/simulate-card-catalog.js
 
-      - name: Check stage 4 files and PWA cache
+      - name: Test deck browser and content filter
+        run: node scripts/test-stage5-deck.js
+
+      - name: Check stage 5 files and PWA cache
         run: |
           test -s index.html
           test -s legacy.html
-          test -s styles/stage4.css
-          test -s src/core/stage4-battle-engine.js
-          test -s src/core/stage4-runtime.js
-          test -s src/data/card-catalog.js
-          test -s src/data/stage4-assets.js
-          test -s src/ui/stage4-runtime.js
-          test -s docs/CARD_CATALOG.md
-          grep -q '30 КАРТ' index.html
-          grep -q 'card-catalog.js' index.html
-          grep -q 'stage4-battle-engine.js' index.html
-          grep -q 'stage4-runtime.js' index.html
-          grep -q 'bitaya-mast-v8-card-catalog' sw.js
-          grep -q 'src/data/card-catalog.js' sw.js
-          grep -q 'src/core/stage4-battle-engine.js' sw.js
+          test -s styles/stage5.css
+          test -s src/core/content-settings.js
+          test -s src/core/deck-view-model.js
+          test -s src/ui/stage5-deck.js
+          test -s docs/CONTENT_FILTER.md
+          test -s scripts/test-stage5-deck.js
+          grep -q 'МОЯ КОЛОДА' index.html
+          grep -q 'deckSearch' index.html
+          grep -q 'contentModeToggle' index.html
+          grep -q 'content-settings.js' index.html
+          grep -q 'deck-view-model.js' index.html
+          grep -q 'stage5-deck.js' index.html
+          grep -q 'bitaya-mast-v9-deck-content-filter' sw.js
+          grep -q 'src/core/content-settings.js' sw.js
+          grep -q 'src/ui/stage5-deck.js' sw.js
           grep -q 'BUNDLE_HASH' legacy.html
