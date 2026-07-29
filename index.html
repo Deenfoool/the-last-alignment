@@ -97,10 +97,18 @@
 
       document.documentElement.lang = parsed.documentElement.lang || "ru";
       document.head.replaceChildren(...Array.from(parsed.head.childNodes).map((node) => document.importNode(node, true)));
-      const style = document.createElement("style");
-      style.dataset.source = "bundled-styles";
-      style.textContent = decoder.decode(files.get("styles.css"));
-      document.head.append(style);
+
+      const bundledStyle = document.createElement("style");
+      bundledStyle.dataset.source = "bundled-styles";
+      bundledStyle.textContent = decoder.decode(files.get("styles.css"));
+      document.head.append(bundledStyle);
+
+      const illustratedTheme = document.createElement("link");
+      illustratedTheme.rel = "stylesheet";
+      illustratedTheme.href = "theme-enhancer.css?v=3";
+      illustratedTheme.dataset.source = "illustrated-theme";
+      document.head.append(illustratedTheme);
+
       document.body.replaceChildren(...Array.from(parsed.body.childNodes).map((node) => document.importNode(node, true)));
 
       for (const fileName of ["data.js", "game.js"]) {
@@ -109,6 +117,11 @@
         script.textContent = `${decoder.decode(files.get(fileName))}\n//# sourceURL=${fileName}`;
         document.body.append(script);
       }
+
+      const themeRuntime = document.createElement("script");
+      themeRuntime.src = "theme-enhancer.js?v=3";
+      themeRuntime.dataset.source = "illustrated-theme-runtime";
+      document.body.append(themeRuntime);
     }
 
     unpackBundle()
