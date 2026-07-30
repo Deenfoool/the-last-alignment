@@ -1,0 +1,11 @@
+"use strict";
+const assert=require("assert");
+const spec=require("../src/data/diegetic-ui-spec.js");
+assert.equal(spec.version,1);
+assert.equal(spec.requiredSelectors.length,7);
+assert.ok(spec.requiredSelectors.includes(".timer-box"));
+assert.ok(spec.requiredSelectors.includes(".physical-card-tooltip"));
+assert.equal(spec.rules.noCleanWhitePanels,true);
+assert.equal(spec.rules.noGlassmorphism,true);
+assert.equal(spec.rules.battleStateUnaffected,true);
+console.log("diegetic UI spec: ok");
