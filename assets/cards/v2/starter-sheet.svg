@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="896" viewBox="0 0 1600 896" shape-rendering="crispEdges">
+  <defs>
+    <filter id="rough"><feTurbulence baseFrequency=".045" numOctaves="3" seed="17" result="n"/><feColorMatrix in="n" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .22 0"/><feBlend in="SourceGraphic" mode="multiply"/></filter>
+    <linearGradient id="plasticBlack" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#232523"/><stop offset=".55" stop-color="#0b0c0c"/><stop offset="1" stop-color="#35312a"/></linearGradient>
+    <linearGradient id="redCard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a03b31"/><stop offset="1" stop-color="#52221f"/></linearGradient>
+    <linearGradient id="blueCard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#436c82"/><stop offset="1" stop-color="#172c3a"/></linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ded4b9"/><stop offset="1" stop-color="#8f8168"/></linearGradient>
+    <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c4bba8"/><stop offset=".5" stop-color="#6e6a61"/><stop offset="1" stop-color="#d6ccb5"/></linearGradient>
+    <style>.label{font-family:monospace;font-weight:700;letter-spacing:3px}.scratch{stroke:#d9c7a0;stroke-width:3;opacity:.16}.edge{stroke:#1b1510;stroke-width:12}.thin{stroke:#3d3025;stroke-width:4}</style>
+  </defs>
+
+  <!-- 1 bank card -->
+  <g id="bank_card" transform="translate(16 48)" filter="url(#rough)">
+    <rect x="0" y="48" width="288" height="352" rx="26" fill="url(#plasticBlack)" class="edge"/>
+    <rect x="34" y="118" width="72" height="56" rx="8" fill="#b49c63" stroke="#3c3120" stroke-width="5"/>
+    <path d="M46 146h48M70 120v54" stroke="#554425" stroke-width="4"/>
+    <text x="32" y="96" fill="#dad2bd" font-size="28" class="label">БАНК</text>
+    <text x="32" y="330" fill="#8d887b" font-size="20" class="label">DEBIT</text>
+    <path d="M218 122q32 28 0 56M232 110q48 40 0 80" fill="none" stroke="#bbb6a8" stroke-width="8" opacity=".75"/>
+    <path d="M20 204l240-72M46 362l196-44M82 82l146 290" class="scratch"/>
+  </g>
+
+  <!-- 2 loyalty -->
+  <g id="loyalty_card" transform="translate(336 48)" filter="url(#rough)">
+    <rect x="0" y="48" width="288" height="352" rx="26" fill="url(#redCard)" class="edge"/>
+    <circle cx="144" cy="190" r="68" fill="none" stroke="#e1cda9" stroke-width="14" opacity=".85"/>
+    <path d="M118 194q24-58 62-22q14 16-3 37q-25 28-59-15z" fill="#e1cda9"/>
+    <text x="144" y="300" text-anchor="middle" fill="#ead7b7" font-size="24" class="label">КАРТА</text>
+    <text x="144" y="330" text-anchor="middle" fill="#ead7b7" font-size="20" class="label">ПОКУПАТЕЛЯ</text>
+    <path d="M18 104l248 62M46 372l210-78M94 70l104 304" class="scratch"/>
+  </g>
+
+  <!-- 3 troika -->
+  <g id="troika_pass" transform="translate(656 48)" filter="url(#rough)">
+    <rect x="0" y="48" width="288" height="352" rx="26" fill="url(#blueCard)" class="edge"/>
+    <g fill="#d4d1c2" opacity=".86">
+      <path d="M54 183q35-58 74 0q-9 24-36 30q-27-6-38-30z"/><path d="M108 170q35-58 74 0q-9 24-36 30q-27-6-38-30z"/><path d="M162 183q35-58 74 0q-9 24-36 30q-27-6-38-30z"/>
+    </g>
+    <text x="144" y="304" text-anchor="middle" fill="#ebe3c9" font-size="34" class="label">ТРОЙКА</text>
+    <path d="M20 86l244 208M32 334l212-230M74 72l170 292" class="scratch"/>
+  </g>
+
+  <!-- 4 cleaning card -->
+  <g id="cleaning_card" transform="translate(976 48)" filter="url(#rough)">
+    <rect x="0" y="48" width="288" height="352" rx="18" fill="url(#paper)" class="edge"/>
+    <text x="144" y="110" text-anchor="middle" fill="#24211e" font-size="30" class="label">ЧИСТЫЙ ДОМ</text>
+    <text x="28" y="148" fill="#3b3730" font-size="17" class="label">КЛИНИНГОВЫЕ УСЛУГИ</text>
+    <path d="M44 196h120M44 228h98M44 260h130M44 292h88" stroke="#494138" stroke-width="7"/>
+    <path d="M212 190v112M198 188h28M184 302h56l-8 36h-40z" fill="none" stroke="#25445d" stroke-width="9"/>
+    <path d="M24 86l238 244M42 364l198-272" class="scratch"/>
+  </g>
+
+  <!-- 5 ace clubs -->
+  <g id="ace_clubs" transform="translate(1296 32)" filter="url(#rough)">
+    <rect x="20" y="0" width="248" height="416" rx="20" fill="url(#paper)" class="edge"/>
+    <text x="44" y="54" fill="#171512" font-size="44" class="label">A</text>
+    <text x="44" y="98" fill="#171512" font-size="46">♣</text>
+    <text x="144" y="254" text-anchor="middle" fill="#171512" font-size="118">♣</text>
+    <text x="244" y="382" text-anchor="end" fill="#171512" font-size="44" class="label">A</text>
+    <path d="M38 122l198 140M58 354l168-260M98 24l110 370" class="scratch"/>
+  </g>
+
+  <!-- 6 brick -->
+  <g id="brick" transform="translate(16 480)" filter="url(#rough)">
+    <path d="M8 108l250-54l26 252l-254 82z" fill="#7a3928" stroke="#21120e" stroke-width="14"/>
+    <path d="M28 126l58-12l8 70l-58 16zm72-16l58-12l8 70l-58 16zm72-16l58-12l8 70l-58 16zM42 220l76-18l10 86l-76 22zm92-22l76-18l10 86l-76 22z" fill="#934b36" stroke="#3d2018" stroke-width="7"/>
+    <path d="M44 144l188 190M88 86l112 288" class="scratch"/>
+  </g>
+
+  <!-- 7 red pill -->
+  <g id="red_pill" transform="translate(336 456)" filter="url(#rough)">
+    <rect x="38" y="0" width="212" height="416" rx="20" fill="url(#foil)" class="edge"/>
+    <g fill="#a43c32" stroke="#3b1715" stroke-width="7">
+      <rect x="76" y="56" width="136" height="64" rx="32"/><rect x="76" y="150" width="136" height="64" rx="32"/><rect x="76" y="244" width="136" height="64" rx="32"/>
+    </g>
+    <path d="M54 34l172 340M64 390l154-352" class="scratch"/>
+  </g>
+
+  <!-- 8 blue pill -->
+  <g id="blue_pill" transform="translate(656 456)" filter="url(#rough)">
+    <rect x="38" y="0" width="212" height="416" rx="20" fill="url(#foil)" class="edge"/>
+    <g fill="#42667d" stroke="#152b3a" stroke-width="7">
+      <rect x="76" y="56" width="136" height="64" rx="32"/><rect x="76" y="150" width="136" height="64" rx="32"/><rect x="76" y="244" width="136" height="64" rx="32"/>
+    </g>
+    <path d="M54 34l172 340M64 390l154-352" class="scratch"/>
+  </g>
+
+  <!-- 9 memory card -->
+  <g id="memory_card_8mb" transform="translate(976 456)" filter="url(#rough)">
+    <path d="M44 0h168l44 44v354H44z" fill="#242522" class="edge"/>
+    <rect x="66" y="44" width="122" height="96" fill="#090a09" stroke="#555145" stroke-width="8"/>
+    <rect x="78" y="54" width="98" height="62" fill="#b7a98a"/>
+    <text x="150" y="238" text-anchor="middle" fill="#c9c1ae" font-size="48" class="label">8 MB</text>
+    <path d="M62 176h172M62 284h172M80 22l144 350" class="scratch"/>
+  </g>
+
+  <!-- 10 expired pass -->
+  <g id="expired_pass" transform="translate(1296 456)" filter="url(#rough)">
+    <rect x="20" y="0" width="248" height="416" rx="18" fill="url(#paper)" class="edge"/>
+    <rect x="52" y="58" width="86" height="112" fill="#4a4540" stroke="#1d1b19" stroke-width="7"/>
+    <circle cx="95" cy="96" r="24" fill="#171615"/><path d="M62 154q34-64 66 0z" fill="#171615"/>
+    <text x="154" y="82" fill="#25221d" font-size="21" class="label">ПРОПУСК</text>
+    <path d="M154 108h72M154 132h58M52 210h176M52 238h176M52 266h130" stroke="#50483b" stroke-width="7"/>
+    <g transform="rotate(-14 144 320)"><rect x="36" y="288" width="216" height="62" fill="none" stroke="#8c2f26" stroke-width="9"/><text x="144" y="330" text-anchor="middle" fill="#8c2f26" font-size="31" class="label">ПРОСРОЧЕН</text></g>
+    <path d="M40 30l194 344M66 386l160-348" class="scratch"/>
+  </g>
+</svg>
