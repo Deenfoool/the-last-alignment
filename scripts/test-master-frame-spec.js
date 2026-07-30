@@ -1,0 +1,12 @@
+"use strict";
+const assert = require("node:assert/strict");
+const spec = require("../src/data/master-frame-spec.js");
+const result = spec.validate();
+assert.equal(result.ok, true, result.errors.join(", "));
+assert.deepEqual(spec.ASPECT_RATIO, [16, 9]);
+assert.equal(spec.RULES.dealerCentered, true);
+assert.equal(spec.RULES.playerBodyVisible, false);
+assert.equal(spec.RULES.gameplayTextOnCardFace, false);
+assert.ok(spec.ZONES.hand.y > spec.ZONES.dealer.y);
+assert.ok(spec.ZONES.timer.x < spec.ZONES.dealer.x);
+console.log("Master frame spec: OK");
