@@ -1,0 +1,12 @@
+"use strict";
+const assert = require("node:assert/strict");
+const Manifest = require("../src/data/physical-card-manifest.js");
+const result = Manifest.validate();
+assert.equal(result.ok, true, result.errors.join("\n"));
+assert.equal(Manifest.cards.length, 10);
+assert.deepEqual(Manifest.MASTER, { width: 512, height: 768, anchorX: 256, anchorY: 740, safeInset: 28 });
+assert.equal(new Set(Manifest.cards.map((card) => card.id)).size, 10);
+assert.ok(Manifest.cards.every((card) => card.containsGameplayText === false));
+assert.ok(Manifest.cards.every((card) => card.usesRealBrand === false));
+assert.ok(Manifest.cards.every((card) => card.png.endsWith(".png") && card.webp.endsWith(".webp")));
+console.log(`Physical card manifest OK: ${Manifest.cards.length} cards.`);
