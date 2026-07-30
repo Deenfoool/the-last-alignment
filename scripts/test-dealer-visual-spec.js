@@ -1,0 +1,23 @@
+"use strict";
+const assert = require("assert");
+const spec = require("../src/data/dealer-visual-spec.js");
+const ids = ["shuler", "collector", "sysadmin", "projectionist", "archivist", "mascot", "house_master"];
+assert.strictEqual(spec.DEALERS.length, 7, "Должно быть семь дилеров");
+assert.deepStrictEqual(spec.DEALERS.map((dealer) => dealer.id), ids, "Порядок и ID дилеров должны совпадать с каталогом");
+assert.deepStrictEqual(spec.STATES, ["idle", "hit", "shield", "win", "lose"], "Нужны пять обязательных состояний");
+assert.strictEqual(spec.STAGING.background, "transparent");
+assert.strictEqual(spec.STAGING.light.direction, "top");
+assert.strictEqual(spec.STAGING.light.temperature, "amber");
+assert(spec.STAGING.bodyBox.x >= 0 && spec.STAGING.bodyBox.y >= 0);
+assert(spec.STAGING.bodyBox.x + spec.STAGING.bodyBox.width <= spec.STAGING.canvas.width);
+assert(spec.STAGING.bodyBox.y + spec.STAGING.bodyBox.height <= spec.STAGING.canvas.height);
+assert(spec.STAGING.mobileSafeBox.x <= spec.STAGING.headCenter.x && spec.STAGING.mobileSafeBox.x + spec.STAGING.mobileSafeBox.width >= spec.STAGING.headCenter.x);
+const silhouettes = new Set(spec.DEALERS.map((dealer) => dealer.silhouette));
+const masks = new Set(spec.DEALERS.map((dealer) => dealer.mask));
+assert.strictEqual(silhouettes.size, 7, "Все силуэты должны отличаться");
+assert.strictEqual(masks.size, 7, "Все маски/лица должны отличаться");
+spec.DEALERS.forEach((dealer) => {
+  assert(Array.isArray(dealer.palette) && dealer.palette.length === 3, `${dealer.id}: нужна палитра из трёх цветов`);
+  assert(Array.isArray(dealer.props) && dealer.props.length >= 2, `${dealer.id}: нужен узнаваемый реквизит`);
+});
+console.log("dealer visual spec: ok");
