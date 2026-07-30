@@ -6,6 +6,16 @@
   let tooltip = null;
   let activeCard = null;
 
+  function ensureVisualStyles() {
+    if (document.querySelector('link[data-diegetic-ui="v1"]')) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "styles/diegetic-ui.css?v=14";
+    link.dataset.diegeticUi = "v1";
+    document.head.append(link);
+    document.documentElement.dataset.diegeticUi = "ready";
+  }
+
   function coarsePointer() {
     return Boolean(window.matchMedia && window.matchMedia("(hover: none), (pointer: coarse)").matches);
   }
@@ -90,6 +100,7 @@
   }
 
   function attach() {
+    ensureVisualStyles();
     const hand = document.querySelector(HAND_SELECTOR);
     if (!hand || hand.dataset.physicalInteractions === "ready") return;
     hand.dataset.physicalInteractions = "ready";
@@ -149,5 +160,6 @@
   window.addEventListener("resize", () => { if (activeCard) positionTooltip(activeCard); });
   window.addEventListener("scroll", () => { if (activeCard) positionTooltip(activeCard); }, true);
   window.addEventListener("bitaya:app-ready", attach);
+  ensureVisualStyles();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", attach); else attach();
 })();
