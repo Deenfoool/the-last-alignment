@@ -1,0 +1,228 @@
+:root {
+  --physical-card-width: clamp(108px, 9.4vw, 164px);
+  --physical-card-height: calc(var(--physical-card-width) * 1.48);
+  --tooltip-bg: rgba(10, 8, 7, .97);
+  --tooltip-border: #7b5934;
+}
+
+html.visual-physical-cards .hand-dock {
+  overflow: visible;
+}
+
+html.visual-physical-cards .hand {
+  min-height: calc(var(--physical-card-height) * .78);
+  overflow: visible;
+  align-items: flex-end;
+  perspective: 900px;
+}
+
+html.visual-physical-cards .game-card {
+  width: var(--physical-card-width) !important;
+  height: var(--physical-card-height) !important;
+  min-width: var(--physical-card-width) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(185, 137, 79, .52) !important;
+  border-radius: clamp(6px, .5vw, 10px) !important;
+  background: #17110d !important;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, .72), inset 0 0 0 2px rgba(22, 13, 8, .82) !important;
+  transform-origin: 50% 110%;
+  transform: translateY(var(--lift, 0px)) rotate(var(--angle, 0deg));
+  transition: transform .16s ease, filter .16s ease, box-shadow .16s ease, opacity .16s ease;
+  isolation: isolate;
+}
+
+html.visual-physical-cards .game-card:hover,
+html.visual-physical-cards .game-card:focus-visible,
+html.visual-physical-cards .game-card.physical-selected {
+  transform: translateY(calc(var(--lift, 0px) - 42px)) rotate(0deg) scale(1.08) !important;
+  z-index: 80 !important;
+  box-shadow: 0 24px 40px rgba(0, 0, 0, .82), 0 0 0 2px rgba(224, 169, 91, .58) !important;
+  outline: none;
+}
+
+html.visual-physical-cards .game-card[data-unplayable="true"] {
+  filter: grayscale(.62) brightness(.56);
+  opacity: .82;
+  cursor: not-allowed;
+}
+
+html.visual-physical-cards .game-card[data-unplayable="true"]:hover,
+html.visual-physical-cards .game-card[data-unplayable="true"].physical-selected {
+  filter: grayscale(.35) brightness(.72);
+}
+
+.physical-card-face {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-color: #19120d;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  image-rendering: pixelated;
+}
+
+.physical-card-face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 195, 111, .1), transparent 24%, transparent 72%, rgba(0, 0, 0, .44)),
+    radial-gradient(circle at 50% 34%, transparent 35%, rgba(0, 0, 0, .36) 100%);
+  pointer-events: none;
+}
+
+.physical-card-face::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(228, 181, 112, .24);
+  border-radius: 5px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, .5);
+  pointer-events: none;
+}
+
+.physical-card-object-label {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: 6%;
+  padding: .28em .42em;
+  color: #e5d3ad;
+  background: rgba(13, 10, 8, .76);
+  border: 1px solid rgba(190, 143, 80, .34);
+  font: 700 clamp(9px, .7vw, 12px)/1.08 monospace;
+  letter-spacing: .04em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 #000;
+}
+
+.game-card[data-rarity="rare"] .physical-card-face,
+.game-card[data-rarity="epic"] .physical-card-face,
+.game-card[data-rarity="legendary"] .physical-card-face {
+  box-shadow: inset 0 0 28px rgba(75, 126, 154, .2);
+}
+
+.game-card[data-rarity="curse"] .physical-card-face {
+  box-shadow: inset 0 0 34px rgba(115, 42, 89, .3);
+}
+
+.physical-card-tooltip {
+  position: fixed;
+  z-index: 5000;
+  width: min(360px, calc(100vw - 24px));
+  padding: 14px 16px 13px;
+  color: #d7c5a5;
+  background: var(--tooltip-bg);
+  border: 2px solid var(--tooltip-border);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .84), inset 0 0 0 2px rgba(28, 18, 11, .9);
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px) scale(.98);
+  transition: opacity .12s ease, transform .12s ease;
+}
+
+.physical-card-tooltip[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.physical-card-tooltip header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(163, 119, 68, .42);
+}
+
+.physical-card-tooltip h3 {
+  margin: 0;
+  color: #efd08e;
+  font: 800 18px/1 monospace;
+  text-transform: uppercase;
+}
+
+.physical-card-tooltip .physical-cost {
+  color: #9cc3d8;
+  font: 800 14px/1 monospace;
+  white-space: nowrap;
+}
+
+.physical-card-tooltip .physical-meta {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+  color: #98856d;
+  font: 700 11px/1.2 monospace;
+  text-transform: uppercase;
+}
+
+.physical-card-tooltip .physical-effect {
+  margin: 0;
+  color: #e2d6be;
+  font: 700 14px/1.35 monospace;
+}
+
+.physical-card-tooltip .physical-lore {
+  margin: 9px 0 0;
+  color: #8e7d68;
+  font: italic 12px/1.35 serif;
+}
+
+.physical-card-tooltip .physical-warning {
+  display: none;
+  margin-top: 9px;
+  color: #d56e54;
+  font: 800 11px/1.2 monospace;
+}
+
+.physical-card-tooltip[data-unplayable="true"] .physical-warning {
+  display: block;
+}
+
+@media (pointer: coarse), (max-width: 760px) {
+  :root {
+    --physical-card-width: clamp(96px, 27vw, 132px);
+  }
+
+  html.visual-physical-cards .hand {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 50px 18px 8px;
+    scroll-snap-type: x proximity;
+  }
+
+  html.visual-physical-cards .game-card {
+    scroll-snap-align: center;
+    flex: 0 0 var(--physical-card-width);
+    transform: none !important;
+    margin-right: -18px;
+  }
+
+  html.visual-physical-cards .game-card:hover,
+  html.visual-physical-cards .game-card:focus-visible,
+  html.visual-physical-cards .game-card.physical-selected {
+    transform: translateY(-28px) scale(1.04) !important;
+  }
+
+  .physical-card-tooltip {
+    position: fixed;
+    left: 12px !important;
+    right: 12px;
+    top: auto !important;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 190px);
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.visual-physical-cards .game-card,
+  .physical-card-tooltip {
+    transition: none;
+  }
+}
