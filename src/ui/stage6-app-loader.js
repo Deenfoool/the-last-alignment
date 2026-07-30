@@ -12,6 +12,23 @@
     throw new Error(`Не удалось загрузить интерфейс боя: ${request.status}.`);
   }
 
+  function loadPhysicalCardInteractions() {
+    if (!document.querySelector('link[data-physical-card-interactions]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "styles/physical-card-interactions.css?v=14";
+      link.dataset.physicalCardInteractions = "true";
+      document.head.append(link);
+    }
+    if (!document.querySelector('script[data-physical-card-interactions]')) {
+      const script = document.createElement("script");
+      script.src = "src/ui/physical-card-interactions.js?v=14";
+      script.defer = true;
+      script.dataset.physicalCardInteractions = "true";
+      document.head.append(script);
+    }
+  }
+
   let source = loadSource("src/ui/stage3-app.js?v=13");
   const choicePattern = /  function dealerChoice\(assumeNextTurn\) \{[\s\S]*?\n  function renderIntent\(\) \{/;
   if (!choicePattern.test(source)) throw new Error("Не удалось подключить новый ИИ: блок dealerChoice не найден.");
@@ -52,5 +69,6 @@
   source = source.replace("? `Шулер проиграл. Осталось здоровья: ${state.actors.player.hp}. Режим: ${TimerSettings.describe(settings)}.`", "? `${activeDealerProfile().name} проиграл. Осталось здоровья: ${state.actors.player.hp}. Режим: ${TimerSettings.describe(settings)}.`");
   source += "\n//# sourceURL=stage6-patched-duel-app.js";
   (0, eval)(source);
-  window.dispatchEvent(new CustomEvent("bitaya:app-ready", { detail: { stage: 6 } }));
+  loadPhysicalCardInteractions();
+  window.dispatchEvent(new CustomEvent("bitaya:app-ready", { detail: { stage: 6, physicalCards: true } }));
 })();
