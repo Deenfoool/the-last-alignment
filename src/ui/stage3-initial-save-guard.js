@@ -6,19 +6,21 @@
     catch (error) { console.warn("Не удалось очистить предварительное сохранение", error); }
   }
 
-  const VERSION = "15";
+  const VERSION = "16";
   const styles = [
     "styles/diegetic-ui.css",
     "styles/physical-card-interactions.css",
     "styles/scene-asset-assembly.css",
     "styles/visual-v2-integration.css",
-    "styles/visual-v2-polish.css"
+    "styles/visual-v2-polish.css",
+    "styles/visual-acceptance-console.css"
   ];
   const scripts = [
     "src/data/scene-asset-manifest.js",
     "src/ui/scene-asset-assembler.js",
     "src/ui/physical-card-interactions.js",
-    "src/ui/visual-v2-polish.js"
+    "src/ui/visual-v2-polish.js",
+    "src/ui/visual-acceptance-console.js"
   ];
 
   function loadStyle(path) {
