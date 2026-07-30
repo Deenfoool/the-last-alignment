@@ -1,7 +1,7 @@
 "use strict";
 
-const SW_VERSION = "13";
-const CACHE_NAME = "bitaya-mast-v13-release-candidate";
+const SW_VERSION = "14";
+const CACHE_NAME = "bitaya-mast-v14-visual-v2";
 const CACHE_PREFIX = "bitaya-mast-";
 const BUNDLE_PARTS = Array.from({ length: 7 }, (_, index) => `./.upgrade/part${String(index).padStart(2, "0")}.txt`);
 const CORE_ASSETS = [
@@ -18,6 +18,10 @@ const CORE_ASSETS = [
   "./styles/stage7.css",
   "./styles/stage8.css",
   "./styles/stage9.css",
+  "./styles/diegetic-ui.css",
+  "./styles/physical-card-interactions.css",
+  "./styles/scene-asset-assembly.css",
+  "./styles/visual-v2-integration.css",
   "./compatibility-runtime.js",
   "./src/core/storage-vault.js",
   "./src/core/storage-vault-extension.js",
@@ -48,6 +52,7 @@ const CORE_ASSETS = [
   "./src/data/stage2-assets-scene.js",
   "./src/data/stage2-assets-a.js",
   "./src/data/stage2-assets-b.js",
+  "./src/data/scene-asset-manifest.js",
   "./src/ui/stage2-app.js",
   "./src/ui/stage3-app.js",
   "./src/ui/stage4-runtime.js",
@@ -58,7 +63,16 @@ const CORE_ASSETS = [
   "./src/ui/stage8-system.js",
   "./src/ui/stage8-system-extension.js",
   "./src/ui/stage9-release.js",
-  "./src/ui/stage3-initial-save-guard.js"
+  "./src/ui/stage3-initial-save-guard.js",
+  "./src/ui/scene-asset-assembler.js",
+  "./src/ui/physical-card-interactions.js",
+  "./assets/scene/v2/background.svg",
+  "./assets/scene/v2/table.svg",
+  "./assets/scene/v2/ambient.svg",
+  "./assets/scene/v2/dust.svg",
+  "./assets/scene/v2/vignette.svg",
+  "./assets/dealers/v2/dealer-atlas.svg",
+  "./assets/cards/v2/starter-sheet.svg"
 ];
 const OPTIONAL_ASSETS = [
   "./legacy.html",
@@ -94,7 +108,7 @@ async function cacheOne(cache, url) {
 async function installAssets() {
   const cache = await caches.open(CACHE_NAME);
   const coreResults = await Promise.all(CORE_ASSETS.map((url) => cacheOne(cache, url)));
-  if (coreResults.some((result) => !result)) throw new Error("Не удалось закэшировать всё игровое ядро релиз-кандидата.");
+  if (coreResults.some((result) => !result)) throw new Error("Не удалось закэшировать всё игровое ядро визуальной версии v2.");
   await Promise.allSettled(OPTIONAL_ASSETS.map((url) => cacheOne(cache, url)));
   if (!self.registration.active) await self.skipWaiting();
 }
@@ -129,7 +143,7 @@ self.addEventListener("message", (event) => {
   const message = event.data || {};
   if (message.type === "SKIP_WAITING") self.skipWaiting();
   if (message.type === "CLEAR_OLD_CACHES") event.waitUntil(removeOldCaches());
-  if (message.type === "GET_VERSION" && event.ports && event.ports[0]) event.ports[0].postMessage({ version: SW_VERSION, cacheName: CACHE_NAME, release: "1.0.0-rc1", state: self.registration.active ? "active" : "waiting" });
+  if (message.type === "GET_VERSION" && event.ports && event.ports[0]) event.ports[0].postMessage({ version: SW_VERSION, cacheName: CACHE_NAME, release: "visual-v2", state: self.registration.active ? "active" : "waiting" });
 });
 self.addEventListener("fetch", (event) => {
   const request = event.request; if (request.method !== "GET") return;
